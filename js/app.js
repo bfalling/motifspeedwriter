@@ -3,7 +3,13 @@ var MotifSpeedWriter = (function() {
   var appObject = {};
   var lastMotifText = '';
 
-  appObject.handleText = function(motifText) {
+  appObject.parseMotifTerms = function(motifText) {
+    var motifData = {};
+    return motifText;
+
+  }; // parseMotifTerms
+
+  appObject.generateMotif = function(motifText) {
     if (motifText === lastMotifText) {
       return;
     } else {
@@ -11,9 +17,29 @@ var MotifSpeedWriter = (function() {
     }
 
     var cleanMotifText = motifText.replace(/\s/g, '');
+
+    var motifPreTerms = [];
+    var motifTerms = [];
+    var motifWithStaffRegexp = /([^\|]*)\|\|([^\|]*)\|\|/;
+    var match = motifWithStaffRegexp.exec(cleanMotifText);
+    if (match !== null) {
+      motifPreTerms = this.parseMotifTerms(match[1]);
+      motifTerms = this.parseMotifTerms(match[2]);
+    } else {
+      motifTerms = this.parseMotifTerms(cleanMotifText);
+    }
+
+    console.log('PreTerms: ' + motifPreTerms);
+    console.log('Terms: ' + motifTerms);
+
+/*
+    var motifData = this.parseMotifText(cleanMotifText);
+
     var cleanMotifTextLength = cleanMotifText.length;
 
     var motifStaff = 0;
+    var currentPosition = 0;
+    var numColumns = 1; // TODO
 
     console.log('Processing');
 
@@ -49,8 +75,8 @@ var MotifSpeedWriter = (function() {
     } catch(thrown) {
       console.log('Thrown: ' + thrown);
     }; // try
-
-  }; // handleText
+*/
+  }; // generateMotif
 
   return appObject;
 })();
@@ -63,7 +89,7 @@ $(document).ready(function() {
 
   // keyup fires multiple events, so just catch and process first one
   $('#motif-text').keyup(function() {
-    MotifSpeedWriter.handleText($(this).val());
+    MotifSpeedWriter.generateMotif($(this).val());
   });
 
   $('#motif-text').focus();
