@@ -3,7 +3,7 @@ var MotifSpeedWriter = (function() {
   var appObject = {};
   var lastMotifText = '';
 
-  appObject.parseMotifTerms = function(motifText) {
+  appObject.parseSequence = function(sequenceText) {
     // Split on top-level commas, and parse any inner groups
     var depth = 0;
     var terms = [];
@@ -13,8 +13,8 @@ var MotifSpeedWriter = (function() {
       // TODO: Create new term using factory
       // TODO: Parse new terms subterms and add to term
     };
-    for (var i = 0, len = motifText.length; i < len; i++) {
-      var charToProcess = motifText.charAt(i);
+    for (var i = 0, len = sequenceText.length; i < len; i++) {
+      var charToProcess = sequenceText.charAt(i);
       switch(charToProcess) {
         case ',':
           if (depth === 0) {
@@ -39,7 +39,7 @@ var MotifSpeedWriter = (function() {
     }
     terms.push(createNewTerm(termInProgress));
     return terms;
-  }; // parseMotifTerms
+  }; // parseSequence
 
   appObject.generateMotif = function(motifText) {
     if (motifText === lastMotifText) {
@@ -50,26 +50,26 @@ var MotifSpeedWriter = (function() {
 
     var cleanMotifText = motifText.replace(/\s/g, '');
 
-    var motifPreTerms = [];
-    var motifTerms = [];
+    var preSequence = [];
+    var mainSequence = [];
     var motifWithStaffRegexp = /([^\|]*)\|\|([^\|]*)\|\|/;
     var match = motifWithStaffRegexp.exec(cleanMotifText);
     if (match !== null) {
-      motifPreTerms = this.parseMotifTerms(match[1]);
-      motifTerms = this.parseMotifTerms(match[2]);
+      preSequence = this.parseSequence(match[1]);
+      mainSequence = this.parseSequence(match[2]);
     } else {
-      motifTerms = this.parseMotifTerms(cleanMotifText);
+      mainSequence = this.parseSequence(cleanMotifText);
     }
 
     // DBG
-    preTermsOut = $.map(motifPreTerms, function(val) {
+    preSequenceOut = $.map(preSequence, function(val) {
       return val.type;
     });
-    console.log('PreTerms: ' + preTermsOut.join(':'));
-    termsOut = $.map(motifTerms, function(val) {
+    console.log('PreSequence: ' + preSequenceOut.join(':'));
+    mainSequenceOut = $.map(mainSequence, function(val) {
       return val.type;
     });
-    console.log('Terms: ' + termsOut.join(':'));
+    console.log('MainSequence: ' + mainSequenceOut.join(':'));
 
 /*
     var motifData = this.parseMotifText(cleanMotifText);
