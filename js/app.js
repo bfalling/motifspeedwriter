@@ -4,9 +4,41 @@ var MotifSpeedWriter = (function() {
   var lastMotifText = '';
 
   appObject.parseMotifTerms = function(motifText) {
-    var motifData = {};
-    return motifText;
-
+    // Split on top-level commas, and parse any inner groups
+    var depth = 0;
+    var terms = [];
+    var termInProgress = '';
+    var createNewTerm = function(termText) {
+      return { type: termText };
+      // TODO: Create new term using factory
+      // TODO: Parse new terms subterms and add to term
+    };
+    for (var i = 0, len = motifText.length; i < len; i++) {
+      var charToProcess = motifText.charAt(i);
+      switch(charToProcess) {
+        case ',':
+          if (depth === 0) {
+            terms.push(createNewTerm(termInProgress));
+            termInProgress = '';
+          } else {
+            termInProgress += charToProcess;
+          }
+          break;
+        case '(':
+          depth++;
+          termInProgress += charToProcess;
+          break;
+        case ')':
+          depth--;
+          termInProgress += charToProcess;
+          break;
+        default:
+          termInProgress += charToProcess;
+          break;
+      }
+    }
+    terms.push(createNewTerm(termInProgress));
+    return terms;
   }; // parseMotifTerms
 
   appObject.generateMotif = function(motifText) {
@@ -29,8 +61,15 @@ var MotifSpeedWriter = (function() {
       motifTerms = this.parseMotifTerms(cleanMotifText);
     }
 
-    console.log('PreTerms: ' + motifPreTerms);
-    console.log('Terms: ' + motifTerms);
+    // DBG
+    preTermsOut = $.map(motifPreTerms, function(val) {
+      return val.type;
+    });
+    console.log('PreTerms: ' + preTermsOut.join(':'));
+    termsOut = $.map(motifTerms, function(val) {
+      return val.type;
+    });
+    console.log('Terms: ' + termsOut.join(':'));
 
 /*
     var motifData = this.parseMotifText(cleanMotifText);
