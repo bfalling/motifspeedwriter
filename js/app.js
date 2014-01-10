@@ -3,22 +3,81 @@ var MotifSpeedWriter = (function() {
   var appObject = {};
   var lastMotifText = '';
 
+  appObject.describeSequence = function(sequence) {
+    var description = '';
+    $.each(sequence, function(i, term) {
+      description += term.code + '-' + term.duration + ' ';
+      $.each(term.subsequences, function(i, subsequence) {
+        // NOTE: Needed to explicitly name top-level object (not "this") or function wouldn't work
+        description += '[' + MotifSpeedWriter.describeSequence(subsequence) + '] ';
+      });
+    });
+    return description;
+  }; // describeSequence
+
+  appObject.parseTerm = function(termText) {
+    // Separate actual term from simultaneous sequences
+    var depth = 0;
+    var subsequences = [];
+    var subsequenceInProgress = '';
+    var simpleTermInProgress = '';
+
+    for (var i = 0, len = termText.length; i < len; i++) {
+      var charToProcess = termText.charAt(i);
+      switch(charToProcess) {
+        case '(':
+          if (depth === 0) {
+            depth++;
+            subsequenceInProgress = '';
+          } else {
+            subsequenceInProgress += charToProcess;
+          }
+          break;
+        case ')':
+          if (depth === 1) {
+            depth--;
+            subsequences.push(this.parseSequence(subsequenceInProgress));
+          } else if (depth === 0) {
+            console.log('Encountered extra right paren -- ignoring');
+          } else {
+            subsequenceInProgress += charToProcess;
+          }
+          break;
+        default:
+          if (depth === 0) {
+            simpleTermInProgress += charToProcess;
+          } else {
+            subsequenceInProgress += charToProcess;
+          }
+          break;
+      }
+    }
+
+    if (depth > 0) {
+      subsequences.push(this.parseSequence(subsequenceInProgress));
+    }
+
+    var simpleTermRegexp = /(\D*)(\d.*)?/i
+    var match = simpleTermRegexp.exec(simpleTermInProgress);
+
+    return {
+      code: match[1] ? match[1].toLowerCase() : 'nop',
+      duration: match[2] ? parseFloat(match[2]) : 1.0,
+      subsequences: subsequences
+    };
+  }; // parseTerm
+
   appObject.parseSequence = function(sequenceText) {
     // Split on top-level commas, and parse any inner groups
     var depth = 0;
     var terms = [];
     var termInProgress = '';
-    var createNewTerm = function(termText) {
-      return { type: termText };
-      // TODO: Create new term using factory
-      // TODO: Parse new terms subterms and add to term
-    };
     for (var i = 0, len = sequenceText.length; i < len; i++) {
       var charToProcess = sequenceText.charAt(i);
       switch(charToProcess) {
         case ',':
           if (depth === 0) {
-            terms.push(createNewTerm(termInProgress));
+            terms.push(this.parseTerm(termInProgress));
             termInProgress = '';
           } else {
             termInProgress += charToProcess;
@@ -37,7 +96,7 @@ var MotifSpeedWriter = (function() {
           break;
       }
     }
-    terms.push(createNewTerm(termInProgress));
+    terms.push(this.parseTerm(termInProgress));
     return terms;
   }; // parseSequence
 
@@ -61,60 +120,9 @@ var MotifSpeedWriter = (function() {
       mainSequence = this.parseSequence(cleanMotifText);
     }
 
-    // DBG
-    preSequenceOut = $.map(preSequence, function(val) {
-      return val.type;
-    });
-    console.log('PreSequence: ' + preSequenceOut.join(':'));
-    mainSequenceOut = $.map(mainSequence, function(val) {
-      return val.type;
-    });
-    console.log('MainSequence: ' + mainSequenceOut.join(':'));
+    console.log('PreSequence: ' + this.describeSequence(preSequence));
+    console.log('MainSequence: ' + this.describeSequence(mainSequence));
 
-/*
-    var motifData = this.parseMotifText(cleanMotifText);
-
-    var cleanMotifTextLength = cleanMotifText.length;
-
-    var motifStaff = 0;
-    var currentPosition = 0;
-    var numColumns = 1; // TODO
-
-    console.log('Processing');
-
-    try {
-      for (var i = 0; i < cleanMotifTextLength; i++) {
-        var motifChar = cleanMotifText.charAt(i);
-
-
-        if (motifChar === '|') {
-          i++;
-          if (cleanMotifText.charAt(i) === '|') {
-            switch(motifStaff) {
-              case 0:
-                console.log('Create beginning staff');
-                motifStaff++;
-                break;
-              case 1:
-                console.log('Create ending staff');
-                motifStaff++;
-                break;
-              default:
-                throw('Too many staves');
-                break;
-            }
-          } else {
-            throw('Incomplete Motif staff');
-          }
-        }
-
-
-      } // looping through chars
-
-    } catch(thrown) {
-      console.log('Thrown: ' + thrown);
-    }; // try
-*/
   }; // generateMotif
 
   return appObject;
