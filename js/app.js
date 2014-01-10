@@ -131,6 +131,7 @@ var MotifSpeedWriter = (function() {
 $(document).ready(function() {
   $('#motif-text-clear-button').click(function(event) {
     $('#motif-text').val('');
+    MotifSpeedWriter.generateMotif('');
     event.preventDefault();
   });
 
