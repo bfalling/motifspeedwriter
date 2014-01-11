@@ -10,6 +10,7 @@ var MotifSpeedWriter = (function() {
   var drawTerm = function(type, duration, midX, startY, thickness) {
     var canvas = $('#motif-canvas')[0];
     var context = canvas.getContext('2d');
+    context.scale(2, 2);
     switch (type) {
       case 'sp':
         context.beginPath();
