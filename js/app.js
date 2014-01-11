@@ -3,6 +3,29 @@ var MotifSpeedWriter = (function() {
   var appObject = {};
   var lastMotifText = '';
 
+  var unitWidth = 10;
+  var unitHeight = 10;
+  var mainMotifThickness = 1;
+
+  var drawTerm = function(type, duration, midX, startY, thickness) {
+    var canvas = $('#motif-canvas')[0];
+    var context = canvas.getContext('2d');
+    switch (type) {
+      case 'sp':
+        context.beginPath();
+        context.lineWidth = thickness;
+        context.strokeStyle = 'black';
+        context.moveTo(midX - unitWidth / 4, startY - 3);
+        context.lineTo(midX + unitWidth / 4, startY - 3);
+        context.moveTo(midX, startY - 3);
+        context.lineTo(midX, startY - unitHeight * duration + 3);
+        context.moveTo(midX - unitWidth / 4, startY - unitHeight * duration + 3);
+        context.lineTo(midX + unitWidth / 4, startY - unitHeight * duration + 3);
+        context.stroke();
+        break;
+    }
+  };
+
   appObject.describeSequence = function(sequence) {
     var description = '';
     $.each(sequence, function(i, term) {
@@ -122,6 +145,16 @@ var MotifSpeedWriter = (function() {
 
     console.log('PreSequence: ' + this.describeSequence(preSequence));
     console.log('MainSequence: ' + this.describeSequence(mainSequence));
+
+    // TODO: Time to render!
+    // - Render sequence fom starting point
+    // - Handle columns
+    // - Compute vertical length of each column
+    // - Add staff if appropriate
+    // - Set canvas size
+
+    // Test basic drawing
+    drawTerm('sp', 3, $('#motif-canvas').width() / 2, $('#motif-canvas').height(), mainMotifThickness);
 
   }; // generateMotif
 
