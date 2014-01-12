@@ -9,6 +9,7 @@ var MotifSpeedWriter = (function() {
   var unitHeight = 32;
   var termPadding = 3;
   var mainMotifThickness = 2;
+  var staffLineHeight = 3 * termPadding;
 
   var drawTerm = function(type, duration, midX, startY, thickness) {
     var canvas = $('#motif-canvas')[0];
@@ -171,17 +172,17 @@ var MotifSpeedWriter = (function() {
 
     // Determine canvas dimensions needed and resize it
     // TODO: Handle subsequences and column lengths and thus total width of all columns
-    var preSequenceHeight = 0;
+    var preSequenceDuration = 0;
     $.each(preSequence, function(i, term) {
-      preSequenceHeight += term.duration;
+      preSequenceDuration += term.duration;
     });
-    var mainSequenceHeight = 0;
+    var mainSequenceDuration = 0;
     $.each(mainSequence, function(i, term) {
-      mainSequenceHeight += term.duration;
+      mainSequenceDuration += term.duration;
     })
-    var totalSequenceHeight = mainSequenceHeight + (showMotifStaff ? preSequenceHeight + 2 : 0);
+    var totalSequenceHeight = (preSequenceDuration + mainSequenceDuration) * unitHeight + (showMotifStaff ? 2 * staffLineHeight : 0);
     var totalCanvasWidth = unitWidth + 2 * edgePadding;
-    var totalCanvasHeight = totalSequenceHeight * unitHeight + 2 * edgePadding;
+    var totalCanvasHeight = totalSequenceHeight + 2 * edgePadding;
     $('#motif-canvas').attr('width', totalCanvasWidth * devicePixelRatio).attr('height', totalCanvasHeight * devicePixelRatio).width(totalCanvasWidth).height(totalCanvasHeight);
 
     var currentY = edgePadding;
@@ -192,7 +193,7 @@ var MotifSpeedWriter = (function() {
         currentY += term.duration * unitHeight;
       });
       drawTerm('beginstaff', 1, $('#motif-canvas').width() / 2, $('#motif-canvas').height() - currentY, mainMotifThickness);
-      currentY += unitHeight; // Currently, it occupies a one unit height space
+      currentY += staffLineHeight;
     };
 
     $.each(mainSequence, function(i, term) {
@@ -202,7 +203,7 @@ var MotifSpeedWriter = (function() {
 
     if (showMotifStaff) {
       drawTerm('endstaff', 1, $('#motif-canvas').width() / 2, $('#motif-canvas').height() - currentY, mainMotifThickness);
-      currentY += unitHeight; // Currently, it occupies a one unit height space
+      currentY += staffLineHeight; // Currently, it occupies a one unit height space
     };
 
     // TODO: Time to render!
