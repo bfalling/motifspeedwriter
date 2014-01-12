@@ -4,9 +4,10 @@ var MotifSpeedWriter = (function() {
   var lastMotifText = '';
 
   var devicePixelRatio = window.devicePixelRatio;
-  var edgePadding = 10;
+  var edgePadding = 20;
   var unitWidth = 16;
-  var unitHeight = 280; //26;
+  var unitHeight = 26;
+  var termPadding = 3;
   var mainMotifThickness = 2;
 
   var drawTerm = function(type, duration, midX, startY, thickness) {
@@ -14,17 +15,39 @@ var MotifSpeedWriter = (function() {
     var context = canvas.getContext('2d');
     context.scale(devicePixelRatio, devicePixelRatio);
     switch (type) {
-      case 'sp':
+      case 'beginstaff':
         context.beginPath();
         context.lineWidth = thickness;
         context.strokeStyle = 'black';
-        context.moveTo(midX - unitWidth / 4, startY - 3);
-        context.lineTo(midX + unitWidth / 4, startY - 3);
-        context.moveTo(midX, startY - 3);
-        context.lineTo(midX, startY - unitHeight * duration + 3);
-        context.moveTo(midX - unitWidth / 4, startY - unitHeight * duration + 3);
-        context.lineTo(midX + unitWidth / 4, startY - unitHeight * duration + 3);
+        context.moveTo(midX - unitWidth / 2, startY - unitHeight + termPadding);
+        context.lineTo(midX + unitWidth / 2, startY - unitHeight + termPadding);
+        context.moveTo(midX - unitWidth / 2, startY - unitHeight + 2 * termPadding);
+        context.lineTo(midX + unitWidth / 2, startY - unitHeight + 2 * termPadding);
         context.stroke();
+        break;
+      case 'endstaff':
+        context.beginPath();
+        context.lineWidth = thickness;
+        context.strokeStyle = 'black';
+        context.moveTo(midX - unitWidth / 2, startY - termPadding);
+        context.lineTo(midX + unitWidth / 2, startY - termPadding);
+        context.moveTo(midX - unitWidth / 2, startY - 2 * termPadding);
+        context.lineTo(midX + unitWidth / 2, startY - 2 * termPadding);
+        context.stroke();
+        break;
+      case 'sp': // TODO: Need greater detail
+        context.beginPath();
+        context.lineWidth = thickness;
+        context.strokeStyle = 'black';
+        context.moveTo(midX - unitWidth / 4, startY - termPadding);
+        context.lineTo(midX + unitWidth / 4, startY - termPadding);
+        context.moveTo(midX, startY - termPadding);
+        context.lineTo(midX, startY - unitHeight * duration + termPadding); //  TODO
+        context.moveTo(midX - unitWidth / 4, startY - unitHeight * duration + termPadding); // TODO
+        context.lineTo(midX + unitWidth / 4, startY - unitHeight * duration + termPadding); // TODO
+        context.stroke();
+        break;
+      default:
         break;
     }
     context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
@@ -140,15 +163,57 @@ var MotifSpeedWriter = (function() {
     var mainSequence = [];
     var motifWithStaffRegexp = /([^\|]*)\|\|([^\|]*)\|\|/;
     var match = motifWithStaffRegexp.exec(cleanMotifText);
+    var showMotifStaff;
     if (match !== null) {
+      showMotifStaff = true;
       preSequence = this.parseSequence(match[1]);
       mainSequence = this.parseSequence(match[2]);
     } else {
+      showMotifStaff = false;
       mainSequence = this.parseSequence(cleanMotifText);
     }
 
     console.log('PreSequence: ' + this.describeSequence(preSequence));
     console.log('MainSequence: ' + this.describeSequence(mainSequence));
+
+    // Clear old canvas TODO
+    //context.clearRect(0, 0, $('#motif-canvas').width, $('#motif-canvas').height);
+
+    // Determine canvas dimensions needed and resize it
+    // TODO: Handle subsequences and column lengths and thus total width of all columns
+    var preSequenceHeight = 0;
+    $.each(preSequence, function(i, term) {
+      preSequenceHeight += term.duration;
+    });
+    var mainSequenceHeight = 0;
+    $.each(mainSequence, function(i, term) {
+      mainSequenceHeight += term.duration;
+    })
+    var totalSequenceHeight = mainSequenceHeight + (showMotifStaff ? preSequenceHeight + 2 : 0);
+    var totalCanvasWidth = unitWidth + 2 * edgePadding;
+    var totalCanvasHeight = totalSequenceHeight * unitHeight + 2 * edgePadding;
+    $('#motif-canvas').attr('width', totalCanvasWidth * devicePixelRatio).attr('height', totalCanvasHeight * devicePixelRatio).width(totalCanvasWidth).height(totalCanvasHeight);
+
+    var currentY = 0;
+
+    if (showMotifStaff) {
+      $.each(preSequence, function(i, term) {
+        drawTerm(term.code, term.duration, $('#motif-canvas').width() / 2, $('#motif-canvas').height() - currentY, mainMotifThickness);
+        currentY += term.duration * unitHeight;
+      });
+      drawTerm('beginstaff', 1, $('#motif-canvas').width() / 2, $('#motif-canvas').height() - currentY, mainMotifThickness);
+      currentY += unitHeight; // Currently, it occupies a one unit height space
+    };
+
+    $.each(mainSequence, function(i, term) {
+      drawTerm(term.code, term.duration, $('#motif-canvas').width() / 2, $('#motif-canvas').height() - currentY, mainMotifThickness);
+      currentY += term.duration * unitHeight;
+    });
+
+    if (showMotifStaff) {
+      drawTerm('endstaff', 1, $('#motif-canvas').width() / 2, $('#motif-canvas').height() - currentY, mainMotifThickness);
+      currentY += unitHeight; // Currently, it occupies a one unit height space
+    };
 
     // TODO: Time to render!
     // - Render sequence fom starting point
@@ -159,7 +224,7 @@ var MotifSpeedWriter = (function() {
 
     // Test basic drawing
     //$('#motif-canvas').attr('width', 500).attr('height', 400).width(250).height(200);
-    drawTerm('sp', 1, $('#motif-canvas').width() / 2, $('#motif-canvas').height() - edgePadding, mainMotifThickness);
+    //drawTerm('sp', 1, $('#motif-canvas').width() / 2, $('#motif-canvas').height() - edgePadding, mainMotifThickness);
 
   }; // generateMotif
 
@@ -183,5 +248,10 @@ $(document).ready(function() {
 
 /*
 TODO:
+- Shorten Motif staff units
+- Use correct Straight Path lengths
+- Review code
+- Clear canvas when type
 - Take URL parameter
+- Watch floats vs integers
 */

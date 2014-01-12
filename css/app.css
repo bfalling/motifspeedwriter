@@ -6,9 +6,6 @@ h1 {
 }
 #motif-canvas {
   display: block;
-  border: 1px solid #ccc;
-  width: 300px;
-  height: 300px;
-  /*min-height: 300px;*/
+  border: 1px solid #ccc; /* TODO: Remove */
   margin: 20px auto;
 }
