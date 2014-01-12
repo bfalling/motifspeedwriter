@@ -43,19 +43,19 @@ var MotifSpeedWriter = (function() {
     context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
   };
 
-  appObject.describeSequence = function(sequence) {
+  var describeSequence = function(sequence) {
     var description = '';
     $.each(sequence, function(i, term) {
       description += term.code + '-' + term.duration + ' ';
       $.each(term.subsequences, function(i, subsequence) {
         // NOTE: Needed to explicitly name top-level object (not "this") or function wouldn't work
-        description += '[' + MotifSpeedWriter.describeSequence(subsequence) + '] ';
+        description += '[' + describeSequence(subsequence) + '] ';
       });
     });
     return description;
   }; // describeSequence
 
-  appObject.parseTerm = function(termText) {
+  var parseTerm = function(termText) {
     // Separate actual term from simultaneous sequences
     var depth = 0;
     var subsequences = [];
@@ -76,7 +76,7 @@ var MotifSpeedWriter = (function() {
         case ')':
           if (depth === 1) {
             depth--;
-            subsequences.push(this.parseSequence(subsequenceInProgress));
+            subsequences.push(parseSequence(subsequenceInProgress));
           } else if (depth === 0) {
             console.log('Encountered extra right paren -- ignoring');
           } else {
@@ -94,7 +94,7 @@ var MotifSpeedWriter = (function() {
     }
 
     if (depth > 0) {
-      subsequences.push(this.parseSequence(subsequenceInProgress));
+      subsequences.push(parseSequence(subsequenceInProgress));
     }
 
     var simpleTermRegexp = /(\D*)(\d.*)?/i
@@ -107,7 +107,7 @@ var MotifSpeedWriter = (function() {
     };
   }; // parseTerm
 
-  appObject.parseSequence = function(sequenceText) {
+  var parseSequence = function(sequenceText) {
     // Split on top-level commas, and parse any inner groups
     var depth = 0;
     var terms = [];
@@ -117,7 +117,7 @@ var MotifSpeedWriter = (function() {
       switch(charToProcess) {
         case ',':
           if (depth === 0) {
-            terms.push(this.parseTerm(termInProgress));
+            terms.push(parseTerm(termInProgress));
             termInProgress = '';
           } else {
             termInProgress += charToProcess;
@@ -136,7 +136,7 @@ var MotifSpeedWriter = (function() {
           break;
       }
     }
-    terms.push(this.parseTerm(termInProgress));
+    terms.push(parseTerm(termInProgress));
     return terms;
   }; // parseSequence
 
@@ -156,15 +156,15 @@ var MotifSpeedWriter = (function() {
     var showMotifStaff;
     if (match !== null) {
       showMotifStaff = true;
-      preSequence = this.parseSequence(match[1]);
-      mainSequence = this.parseSequence(match[2]);
+      preSequence = parseSequence(match[1]);
+      mainSequence = parseSequence(match[2]);
     } else {
       showMotifStaff = false;
-      mainSequence = this.parseSequence(cleanMotifText);
+      mainSequence = parseSequence(cleanMotifText);
     }
 
-    console.log('PreSequence: ' + this.describeSequence(preSequence));
-    console.log('MainSequence: ' + this.describeSequence(mainSequence));
+    console.log('PreSequence: ' + describeSequence(preSequence));
+    console.log('MainSequence: ' + describeSequence(mainSequence));
 
     // Clear old canvas TODO
     //context.clearRect(0, 0, $('#motif-canvas').width, $('#motif-canvas').height);
