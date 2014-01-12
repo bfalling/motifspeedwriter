@@ -1,6 +1,8 @@
+/* div {
+  border: 1px solid #ccc;
+} */
 h1 {
   text-align: center;
-  border: 1px solid #ccc;
 }
 #motif-canvas {
   display: block;

@@ -6,7 +6,7 @@ var MotifSpeedWriter = (function() {
   var devicePixelRatio = window.devicePixelRatio;
   var edgePadding = 10;
   var unitWidth = 16;
-  var unitHeight = 26;
+  var unitHeight = 280; //26;
   var mainMotifThickness = 2;
 
   var drawTerm = function(type, duration, midX, startY, thickness) {
@@ -27,6 +27,7 @@ var MotifSpeedWriter = (function() {
         context.stroke();
         break;
     }
+    context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
   };
 
   appObject.describeSequence = function(sequence) {
@@ -157,7 +158,7 @@ var MotifSpeedWriter = (function() {
     // - Set canvas size
 
     // Test basic drawing
-    $('#motif-canvas').attr('width', 500).attr('height', 400).width(250).height(200);
+    //$('#motif-canvas').attr('width', 500).attr('height', 400).width(250).height(200);
     drawTerm('sp', 1, $('#motif-canvas').width() / 2, $('#motif-canvas').height() - edgePadding, mainMotifThickness);
 
   }; // generateMotif
