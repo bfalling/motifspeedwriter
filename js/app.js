@@ -167,9 +167,10 @@ var MotifSpeedWriter = (function() {
     console.log('PreSequence: ' + describeSequence(preSequence));
     console.log('MainSequence: ' + describeSequence(mainSequence));
 
-    // Clear old canvas TODO
-    //context.clearRect(0, 0, $('#motif-canvas').width, $('#motif-canvas').height);
-
+    // NOTE: Removing old canvas and creating a new one elminates border artifacts left when resizing on Safari
+    $('#motif-canvas').remove();
+    $('#motif-canvas-container').append('<canvas id="motif-canvas"></canvas>');
+    
     // Determine canvas dimensions needed and resize it
     // TODO: Handle subsequences and column lengths and thus total width of all columns
     var preSequenceDuration = 0;
@@ -207,17 +208,6 @@ var MotifSpeedWriter = (function() {
       currentY += staffLineHeight; // Currently, it occupies a one unit height space
     };
 
-    // TODO: Time to render!
-    // - Render sequence fom starting point
-    // - Handle columns
-    // - Compute vertical length of each column
-    // - Add staff if appropriate
-    // - Set canvas size
-
-    // Test basic drawing
-    //$('#motif-canvas').attr('width', 500).attr('height', 400).width(250).height(200);
-    //drawTerm('sp', 1, $('#motif-canvas').width() / 2, $('#motif-canvas').height() - edgePadding, mainMotifThickness);
-
   }; // generateMotif
 
   return appObject;
@@ -226,7 +216,7 @@ var MotifSpeedWriter = (function() {
 $(document).ready(function() {
   $('#motif-text-clear-button').click(function(event) {
     $('#motif-text').val('');
-    MotifSpeedWriter.generateMotif('');
+    $('#motif-canvas').remove();
     event.preventDefault();
   });
 
@@ -241,6 +231,7 @@ $(document).ready(function() {
 /*
 TODO:
 - Clear canvas when type
+- When type staff lines, add a second bar at end
 - Take URL parameter
 - Watch floats vs integers
 */
