@@ -5,8 +5,8 @@ var MotifSpeedWriter = (function() {
 
   var devicePixelRatio = window.devicePixelRatio;
   var edgePadding = 20;
-  var unitWidth = 16;
-  var unitHeight = 26;
+  var unitWidth = 24;
+  var unitHeight = 32;
   var termPadding = 3;
   var mainMotifThickness = 2;
 
@@ -14,21 +14,12 @@ var MotifSpeedWriter = (function() {
     var canvas = $('#motif-canvas')[0];
     var context = canvas.getContext('2d');
     context.scale(devicePixelRatio, devicePixelRatio);
+    context.lineWidth = thickness;
+    context.strokeStyle = 'black';
     switch (type) {
       case 'beginstaff':
-        context.beginPath();
-        context.lineWidth = thickness;
-        context.strokeStyle = 'black';
-        context.moveTo(midX - unitWidth / 2, startY - unitHeight + termPadding);
-        context.lineTo(midX + unitWidth / 2, startY - unitHeight + termPadding);
-        context.moveTo(midX - unitWidth / 2, startY - unitHeight + 2 * termPadding);
-        context.lineTo(midX + unitWidth / 2, startY - unitHeight + 2 * termPadding);
-        context.stroke();
-        break;
       case 'endstaff':
         context.beginPath();
-        context.lineWidth = thickness;
-        context.strokeStyle = 'black';
         context.moveTo(midX - unitWidth / 2, startY - termPadding);
         context.lineTo(midX + unitWidth / 2, startY - termPadding);
         context.moveTo(midX - unitWidth / 2, startY - 2 * termPadding);
@@ -37,8 +28,6 @@ var MotifSpeedWriter = (function() {
         break;
       case 'sp': // TODO: Need greater detail
         context.beginPath();
-        context.lineWidth = thickness;
-        context.strokeStyle = 'black';
         context.moveTo(midX - unitWidth / 4, startY - termPadding);
         context.lineTo(midX + unitWidth / 4, startY - termPadding);
         context.moveTo(midX, startY - termPadding);
@@ -50,6 +39,7 @@ var MotifSpeedWriter = (function() {
       default:
         break;
     }
+    // Restore context scale factor
     context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
   };
 
@@ -194,7 +184,7 @@ var MotifSpeedWriter = (function() {
     var totalCanvasHeight = totalSequenceHeight * unitHeight + 2 * edgePadding;
     $('#motif-canvas').attr('width', totalCanvasWidth * devicePixelRatio).attr('height', totalCanvasHeight * devicePixelRatio).width(totalCanvasWidth).height(totalCanvasHeight);
 
-    var currentY = 0;
+    var currentY = edgePadding;
 
     if (showMotifStaff) {
       $.each(preSequence, function(i, term) {
