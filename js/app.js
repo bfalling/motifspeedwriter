@@ -234,7 +234,7 @@ $(document).ready(function() {
     // If entered the second bar of two-bar series and there are no other double bars in the text
     if (event.which === 220 && numDoubleBars === 1 && (cursorPos === posDoubleBar + 1 || cursorPos === posDoubleBar + 2)) {
       // Only add one bar if for some reason there's a solo bar at the end
-      var stringToAdd = (posDoubleBar != val.length - 2 && val.charAt(val.length - 1) === '|') ? '|' : '||';
+      var stringToAdd = (posDoubleBar != val.length - 2 && val.charAt(val.length - 1) === '|') ? '|' : ' ||';
       $this.val($this.val() + stringToAdd);
       $this.caret(cursorPos);
     };
