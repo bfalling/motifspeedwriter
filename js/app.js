@@ -109,6 +109,9 @@ var MotifSpeedWriter = (function() {
   }; // parseTerm
 
   var parseSequence = function(sequenceText) {
+    if (sequenceText === '') {
+      return [];
+    };
     // Split on top-level commas, and parse any inner groups
     var depth = 0;
     var terms = [];
@@ -230,8 +233,10 @@ $(document).ready(function() {
 
 /*
 TODO:
-- Clear canvas when type
+- Fix initial padding with ||sp3,2,sp5||, i.e. if show staff but not presequence
+- When pasting, sometimes doesn't update
 - When type staff lines, add a second bar at end
+- Add more symbols
 - Take URL parameter
 - Watch floats vs integers
 */
