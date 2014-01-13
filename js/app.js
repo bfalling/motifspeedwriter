@@ -35,6 +35,16 @@ var MotifSpeedWriter = (function() {
         context.lineTo(midX, startY - termPadding - stemHeight);
         context.stroke();
         break;
+      case 'ges':
+        context.beginPath();
+        stemHeight = duration * unitHeight - 2 * termPadding;
+        context.moveTo(midX, startY - termPadding);
+        context.lineTo(midX, startY - termPadding - stemHeight);
+        context.stroke();
+        context.beginPath();
+        context.arc(midX, startY - termPadding - unitHeight / 3.5, unitWidth / 8, 0, 2 * Math.PI, true);
+        context.stroke();
+        break;
       case 'sp':
         context.beginPath();
         context.moveTo(midX - unitWidth / 4, startY - termPadding);
