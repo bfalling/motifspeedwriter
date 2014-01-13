@@ -17,6 +17,7 @@ var MotifSpeedWriter = (function() {
     context.scale(devicePixelRatio, devicePixelRatio);
     context.lineWidth = thickness;
     context.strokeStyle = 'black';
+    var stemHeight;
     switch (type) {
       case 'beginstaff':
       case 'endstaff':
@@ -31,13 +32,26 @@ var MotifSpeedWriter = (function() {
         context.beginPath();
         context.moveTo(midX - unitWidth / 4, startY - termPadding);
         context.lineTo(midX + unitWidth / 4, startY - termPadding);
-        var stemHeight = duration * unitHeight - 2 * termPadding;
+        stemHeight = duration * unitHeight - 2 * termPadding;
         context.moveTo(midX, startY - termPadding);
         context.lineTo(midX, startY - termPadding - stemHeight);
         context.moveTo(midX - unitWidth / 4, startY - termPadding - stemHeight);
         context.lineTo(midX + unitWidth / 4, startY - termPadding - stemHeight);
         context.stroke();
         break;
+      case 'cp':
+        context.beginPath();
+        context.arc(midX, startY - termPadding, unitWidth / 4, 0, Math.PI, true);
+        context.stroke();
+        context.beginPath();
+        stemHeight = duration * unitHeight - 2 * termPadding - unitWidth / 4;
+        context.moveTo(midX, startY - termPadding - unitWidth / 4);
+        context.lineTo(midX, startY - termPadding - unitWidth / 4 - stemHeight);
+        context.stroke();
+        context.beginPath();
+        context.arc(midX, startY - termPadding - stemHeight, unitWidth / 4, 0, Math.PI, true);
+        context.stroke();
+        break;  
       default:
         break;
     }
@@ -237,6 +251,9 @@ $(document).ready(function() {
       var stringToAdd = (posDoubleBar != val.length - 2 && val.charAt(val.length - 1) === '|') ? '|' : ' ||';
       $this.val($this.val() + stringToAdd);
       $this.caret(cursorPos);
+      if ($this.val().charAt(cursorPos) !== '|') {
+        $this.caret(' ');
+      };
     };
     MotifSpeedWriter.generateMotif($(this).val());
   });
