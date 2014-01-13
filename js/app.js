@@ -251,6 +251,7 @@ $(document).ready(function() {
   $('#motif-text-clear-button').click(function(event) {
     $('#motif-text').val('');
     $('#motif-canvas').remove();
+    $('#motif-image').remove();
     $('#motif-text').focus();
     event.preventDefault();
   });
@@ -259,6 +260,8 @@ $(document).ready(function() {
   $('#motif-text').keyup(function(event) {
     var $this = $(this);
     var val = $this.val();
+
+    // Handle Motif staff entry
     var cursorPos = $this.caret();
     var numDoubleBars = (val.match(/\|\|/g) || []).length;
     var posDoubleBar = val.indexOf('||');
@@ -272,7 +275,12 @@ $(document).ready(function() {
         $this.caret(' ');
       };
     };
+
+    // Generate hidden canvas image and then create image from it
     MotifSpeedWriter.generateMotif($(this).val());
+    var canvas = $('#motif-canvas');
+    var canvasDataURL = canvas[0].toDataURL('image/png');
+    $('#motif-image-container').html('<img id="motif-image" src="' + canvasDataURL + '">');
   });
 
   $('#motif-text').focus();
@@ -282,7 +290,6 @@ $(document).ready(function() {
 TODO:
 - When pasting, sometimes doesn't update
 - Add more symbols
-- Be able to download image
 - Take URL parameter
 - Watch floats vs integers
 */

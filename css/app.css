@@ -1,11 +1,16 @@
-/* div {
-  border: 1px solid #ccc;
-} */
 h1 {
   text-align: center;
 }
+#motif-image {
+  display: block;
+  margin: 20px auto;
+  border: 1px solid #ccc;
+}
+#motif-canvas-container {
+  display: none;
+}
 #motif-canvas {
   display: block;
-  border: 1px solid #ccc; /* TODO: Remove */
   margin: 20px auto;
+  border: 1px solid #ccc;
 }
