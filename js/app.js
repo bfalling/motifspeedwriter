@@ -224,7 +224,19 @@ $(document).ready(function() {
   });
 
   // keyup fires multiple events, so just catch and process first one
-  $('#motif-text').keyup(function() {
+  $('#motif-text').keyup(function(event) {
+    var $this = $(this);
+    var val = $this.val();
+    var cursorPos = $this.caret();
+    var numDoubleBars = (val.match(/\|\|/g) || []).length;
+    var posDoubleBar = val.indexOf('||');
+    // If entered the second bar of two-bar series and there are no other double bars in the text
+    if (event.which === 220 && numDoubleBars === 1 && (cursorPos === posDoubleBar + 1 || cursorPos === posDoubleBar + 2)) {
+      // Only add one bar if for some reason there's a solo bar at the end
+      var stringToAdd = (posDoubleBar != val.length - 2 && val.charAt(val.length - 1) === '|') ? '|' : '||';
+      $this.val($this.val() + stringToAdd);
+      $this.caret(cursorPos);
+    };
     MotifSpeedWriter.generateMotif($(this).val());
   });
 
@@ -233,9 +245,7 @@ $(document).ready(function() {
 
 /*
 TODO:
-- Fix initial padding with ||sp3,2,sp5||, i.e. if show staff but not presequence
 - When pasting, sometimes doesn't update
-- When type staff lines, add a second bar at end
 - Add more symbols
 - Take URL parameter
 - Watch floats vs integers
