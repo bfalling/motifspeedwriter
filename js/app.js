@@ -220,6 +220,7 @@ $(document).ready(function() {
   $('#motif-text-clear-button').click(function(event) {
     $('#motif-text').val('');
     $('#motif-canvas').remove();
+    $('#motif-text').focus();
     event.preventDefault();
   });
 
@@ -247,6 +248,7 @@ $(document).ready(function() {
 TODO:
 - When pasting, sometimes doesn't update
 - Add more symbols
+- Be able to download image
 - Take URL parameter
 - Watch floats vs integers
 */
