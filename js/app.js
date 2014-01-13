@@ -3,19 +3,60 @@ var MotifSpeedWriter = (function() {
   var appObject = {};
   var lastMotifText = '';
 
-  appObject.describeSequence = function(sequence) {
+  var devicePixelRatio = window.devicePixelRatio;
+  var edgePadding = 20;
+  var unitWidth = 24;
+  var unitHeight = 32;
+  var termPadding = 3;
+  var mainMotifThickness = 2;
+  var staffLineHeight = 3 * termPadding;
+
+  var drawTerm = function(type, duration, midX, startY, thickness) {
+    var canvas = $('#motif-canvas')[0];
+    var context = canvas.getContext('2d');
+    context.scale(devicePixelRatio, devicePixelRatio);
+    context.lineWidth = thickness;
+    context.strokeStyle = 'black';
+    switch (type) {
+      case 'beginstaff':
+      case 'endstaff':
+        context.beginPath();
+        context.moveTo(midX - unitWidth / 2, startY - termPadding);
+        context.lineTo(midX + unitWidth / 2, startY - termPadding);
+        context.moveTo(midX - unitWidth / 2, startY - 2 * termPadding);
+        context.lineTo(midX + unitWidth / 2, startY - 2 * termPadding);
+        context.stroke();
+        break;
+      case 'sp':
+        context.beginPath();
+        context.moveTo(midX - unitWidth / 4, startY - termPadding);
+        context.lineTo(midX + unitWidth / 4, startY - termPadding);
+        var stemHeight = duration * unitHeight - 2 * termPadding;
+        context.moveTo(midX, startY - termPadding);
+        context.lineTo(midX, startY - termPadding - stemHeight);
+        context.moveTo(midX - unitWidth / 4, startY - termPadding - stemHeight);
+        context.lineTo(midX + unitWidth / 4, startY - termPadding - stemHeight);
+        context.stroke();
+        break;
+      default:
+        break;
+    }
+    // Restore context scale factor
+    context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
+  };
+
+  var describeSequence = function(sequence) {
     var description = '';
     $.each(sequence, function(i, term) {
       description += term.code + '-' + term.duration + ' ';
       $.each(term.subsequences, function(i, subsequence) {
-        // NOTE: Needed to explicitly name top-level object (not "this") or function wouldn't work
-        description += '[' + MotifSpeedWriter.describeSequence(subsequence) + '] ';
+        description += '[' + describeSequence(subsequence) + '] ';
       });
     });
     return description;
   }; // describeSequence
 
-  appObject.parseTerm = function(termText) {
+  var parseTerm = function(termText) {
     // Separate actual term from simultaneous sequences
     var depth = 0;
     var subsequences = [];
@@ -36,7 +77,7 @@ var MotifSpeedWriter = (function() {
         case ')':
           if (depth === 1) {
             depth--;
-            subsequences.push(this.parseSequence(subsequenceInProgress));
+            subsequences.push(parseSequence(subsequenceInProgress));
           } else if (depth === 0) {
             console.log('Encountered extra right paren -- ignoring');
           } else {
@@ -54,7 +95,7 @@ var MotifSpeedWriter = (function() {
     }
 
     if (depth > 0) {
-      subsequences.push(this.parseSequence(subsequenceInProgress));
+      subsequences.push(parseSequence(subsequenceInProgress));
     }
 
     var simpleTermRegexp = /(\D*)(\d.*)?/i
@@ -67,7 +108,10 @@ var MotifSpeedWriter = (function() {
     };
   }; // parseTerm
 
-  appObject.parseSequence = function(sequenceText) {
+  var parseSequence = function(sequenceText) {
+    if (sequenceText === '') {
+      return [];
+    };
     // Split on top-level commas, and parse any inner groups
     var depth = 0;
     var terms = [];
@@ -77,7 +121,7 @@ var MotifSpeedWriter = (function() {
       switch(charToProcess) {
         case ',':
           if (depth === 0) {
-            terms.push(this.parseTerm(termInProgress));
+            terms.push(parseTerm(termInProgress));
             termInProgress = '';
           } else {
             termInProgress += charToProcess;
@@ -96,7 +140,7 @@ var MotifSpeedWriter = (function() {
           break;
       }
     }
-    terms.push(this.parseTerm(termInProgress));
+    terms.push(parseTerm(termInProgress));
     return terms;
   }; // parseSequence
 
@@ -113,15 +157,59 @@ var MotifSpeedWriter = (function() {
     var mainSequence = [];
     var motifWithStaffRegexp = /([^\|]*)\|\|([^\|]*)\|\|/;
     var match = motifWithStaffRegexp.exec(cleanMotifText);
+    var showMotifStaff;
     if (match !== null) {
-      preSequence = this.parseSequence(match[1]);
-      mainSequence = this.parseSequence(match[2]);
+      showMotifStaff = true;
+      preSequence = parseSequence(match[1]);
+      mainSequence = parseSequence(match[2]);
     } else {
-      mainSequence = this.parseSequence(cleanMotifText);
+      showMotifStaff = false;
+      mainSequence = parseSequence(cleanMotifText);
     }
 
-    console.log('PreSequence: ' + this.describeSequence(preSequence));
-    console.log('MainSequence: ' + this.describeSequence(mainSequence));
+    console.log('PreSequence: ' + describeSequence(preSequence));
+    console.log('MainSequence: ' + describeSequence(mainSequence));
+
+    // NOTE: Removing old canvas and creating a new one elminates border artifacts left when resizing on Safari
+    $('#motif-canvas').remove();
+    $('#motif-canvas-container').append('<canvas id="motif-canvas"></canvas>');
+    
+    // Determine canvas dimensions needed and resize it
+    // TODO: Handle subsequences and column lengths and thus total width of all columns
+    var preSequenceDuration = 0;
+    $.each(preSequence, function(i, term) {
+      preSequenceDuration += term.duration;
+    });
+    var mainSequenceDuration = 0;
+    $.each(mainSequence, function(i, term) {
+      mainSequenceDuration += term.duration;
+    })
+    var totalSequenceHeight = (preSequenceDuration + mainSequenceDuration) * unitHeight + (showMotifStaff ? 2 * staffLineHeight : 0);
+    var totalCanvasWidth = unitWidth + 2 * edgePadding;
+    var totalCanvasHeight = totalSequenceHeight + 2 * edgePadding;
+    $('#motif-canvas').attr('width', totalCanvasWidth * devicePixelRatio).attr('height', totalCanvasHeight * devicePixelRatio).width(totalCanvasWidth).height(totalCanvasHeight);
+
+    var currentY = edgePadding;
+    var midX = totalCanvasWidth / 2;
+
+    if (showMotifStaff) {
+      $.each(preSequence, function(i, term) {
+        drawTerm(term.code, term.duration, midX, totalCanvasHeight - currentY, mainMotifThickness);
+        currentY += term.duration * unitHeight;
+      });
+      drawTerm('beginstaff', 0, midX, totalCanvasHeight - currentY, mainMotifThickness);
+      currentY += staffLineHeight;
+    };
+
+    $.each(mainSequence, function(i, term) {
+      drawTerm(term.code, term.duration, midX, totalCanvasHeight - currentY, mainMotifThickness);
+      currentY += term.duration * unitHeight;
+    });
+
+    if (showMotifStaff) {
+      drawTerm('endstaff', 0, midX, totalCanvasHeight - currentY, mainMotifThickness);
+      currentY += staffLineHeight; // Currently, it occupies a one unit height space
+    };
 
   }; // generateMotif
 
@@ -131,12 +219,25 @@ var MotifSpeedWriter = (function() {
 $(document).ready(function() {
   $('#motif-text-clear-button').click(function(event) {
     $('#motif-text').val('');
-    MotifSpeedWriter.generateMotif('');
+    $('#motif-canvas').remove();
+    $('#motif-text').focus();
     event.preventDefault();
   });
 
   // keyup fires multiple events, so just catch and process first one
-  $('#motif-text').keyup(function() {
+  $('#motif-text').keyup(function(event) {
+    var $this = $(this);
+    var val = $this.val();
+    var cursorPos = $this.caret();
+    var numDoubleBars = (val.match(/\|\|/g) || []).length;
+    var posDoubleBar = val.indexOf('||');
+    // If entered the second bar of two-bar series and there are no other double bars in the text
+    if (event.which === 220 && numDoubleBars === 1 && (cursorPos === posDoubleBar + 1 || cursorPos === posDoubleBar + 2)) {
+      // Only add one bar if for some reason there's a solo bar at the end
+      var stringToAdd = (posDoubleBar != val.length - 2 && val.charAt(val.length - 1) === '|') ? '|' : '||';
+      $this.val($this.val() + stringToAdd);
+      $this.caret(cursorPos);
+    };
     MotifSpeedWriter.generateMotif($(this).val());
   });
 
@@ -145,5 +246,9 @@ $(document).ready(function() {
 
 /*
 TODO:
+- When pasting, sometimes doesn't update
+- Add more symbols
+- Be able to download image
 - Take URL parameter
+- Watch floats vs integers
 */

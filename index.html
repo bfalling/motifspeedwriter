@@ -17,26 +17,31 @@
     </div>
     <div class="row">
       <div class="small-12 columns">
-        <div id="motif-canvas"></div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="small-12 columns">
         <form>
           <div class="row collapse">
-            <div class="small-11 columns">
-              <input type="text" id="motif-text" placeholder="Type Your Motif Text Here">
+            <div class="small-2 columns">
+              <label for="motif-text" class="right"><h4>Try it! &#8680;</h4></label>
             </div>
-            <div class="small-1 columns">
-              <a href="#" id="motif-text-clear-button" class="button postfix">Clear</a>
+            <div class="small-10 columns">
+              <div class="row collapse">
+                <div class="small-11 columns">
+                  <input type="text" id="motif-text" placeholder="Type Your Motif Text Here">
+                </div>
+                <div class="small-1 columns">
+                  <a href="#" id="motif-text-clear-button" class="button postfix">Clear</a>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
         </form>
       </div>
     </div>
+    <div class="row">
+      <div id="motif-canvas-container" class="small-12 columns"></div>
+    </div>
 
     <script src="js/jquery.js"></script>
+    <script src="js/jquery.caret.js"></script>
     <script src="js/foundation.min.js"></script>
     <script src="js/app.js"></script>
     <script>

@@ -1,5 +1,11 @@
-#motif-canvas {
+/* div {
   border: 1px solid #ccc;
-  min-height: 300px;
+} */
+h1 {
+  text-align: center;
+}
+#motif-canvas {
+  display: block;
+  border: 1px solid #ccc; /* TODO: Remove */
   margin: 20px auto;
 }
