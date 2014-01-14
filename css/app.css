@@ -7,10 +7,14 @@ h1 {
   border: 1px solid #ccc;
 }
 #motif-canvas-container {
-  display: none;
+  display: block; // DBG
 }
 #motif-canvas {
   display: block;
   margin: 20px auto;
+  border: 1px solid #ccc;
+}
+#motif-canvas-for-image {
+  display: block; // DBG
   border: 1px solid #ccc;
 }

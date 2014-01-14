@@ -300,8 +300,25 @@ $(document).ready(function() {
     // Generate hidden canvas image and then create image from it
     MotifSpeedWriter.generateMotif($(this).val());
     var canvas = $('#motif-canvas');
+    var canvasForImage = $('#motif-canvas-for-image');
+    canvasForImage.attr('width', canvas.width()).attr('height', canvas.height());
+    var contextForImage = canvasForImage[0].getContext('2d');
+
+/*
+    var canvasDataURL = canvas[0].toDataURL('image/png');
+    var img = new Image();
+    img.src = canvasDataURL;
+    contextForImage.drawImage(img, 0, 0, canvasForImage.width(), canvasForImage.height());
+    */
+    contextForImage.drawImage(canvas[0], 0, 0, canvasForImage.width(), canvasForImage.height());
+
+    var canvasForImageDataURL = canvasForImage[0].toDataURL('image/png');
+    $('#motif-image-container').html('<img id="motif-image" src="' + canvasForImageDataURL + '"><a href="' + canvasForImageDataURL + '" download="motif.png">Download</a>');
+/*
+    var canvas = $('#motif-canvas');
     var canvasDataURL = canvas[0].toDataURL('image/png');
     $('#motif-image-container').html('<img id="motif-image" src="' + canvasDataURL + '">');
+    */
   });
 
   $('#motif-text').focus();
