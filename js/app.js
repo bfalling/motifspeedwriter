@@ -16,6 +16,7 @@ var MotifSpeedWriter = (function() {
     var context = canvas.getContext('2d');
     context.scale(devicePixelRatio, devicePixelRatio);
     context.lineWidth = thickness;
+    //context.lineCap = 'round';
     context.strokeStyle = 'black';
     var stemHeight;
     switch (type) {
@@ -43,6 +44,26 @@ var MotifSpeedWriter = (function() {
         context.stroke();
         context.beginPath();
         context.arc(midX, startY - termPadding - unitHeight / 3.5, unitWidth / 8, 0, 2 * Math.PI, true);
+        context.stroke();
+        break;
+      case 'ap':
+        context.beginPath();
+        var endY = startY - termPadding;
+        var quadraticCurveControlHeight = unitWidth / 10;
+        context.moveTo(midX - unitWidth / 4, endY + quadraticCurveControlHeight / 2);
+        context.quadraticCurveTo(midX - unitWidth / 8, endY - quadraticCurveControlHeight, midX, endY);
+        context.quadraticCurveTo(midX + unitWidth / 8, endY + quadraticCurveControlHeight, midX + unitWidth / 4, endY - quadraticCurveControlHeight / 2);
+        context.stroke();
+        context.beginPath();
+        context.moveTo(midX, endY);
+        stemHeight = duration * unitHeight - 2 * termPadding;
+        endY = startY - termPadding - stemHeight;
+        context.lineTo(midX, endY);
+        context.stroke();
+        context.beginPath();
+        context.moveTo(midX - unitWidth / 4, endY + quadraticCurveControlHeight / 2);
+        context.quadraticCurveTo(midX - unitWidth / 8, endY - quadraticCurveControlHeight, midX, endY);
+        context.quadraticCurveTo(midX + unitWidth / 8, endY + quadraticCurveControlHeight, midX + unitWidth / 4, endY - quadraticCurveControlHeight / 2);
         context.stroke();
         break;
       case 'sp':
