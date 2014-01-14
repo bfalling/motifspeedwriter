@@ -6,11 +6,12 @@ h1 {
   margin: 20px auto;
   border: 1px solid #ccc;
 }
-#motif-canvas-container {
-  display: none;
-}
 #motif-canvas {
   display: block;
   margin: 20px auto;
   border: 1px solid #ccc;
+}
+#generate-button {
+  display: none;
+  text-align: center;
 }

@@ -273,6 +273,7 @@ $(document).ready(function() {
     $('#motif-text').val('');
     $('#motif-canvas').remove();
     $('#motif-image').remove();
+    $('#generate-button').hide();
     $('#motif-text').focus();
     event.preventDefault();
   });
@@ -297,11 +298,12 @@ $(document).ready(function() {
       };
     };
 
-    // Generate hidden canvas image and then create image from it
+    // Generate canvas image and then create image from it
     MotifSpeedWriter.generateMotif($(this).val());
     var canvas = $('#motif-canvas');
     var canvasDataURL = canvas[0].toDataURL('image/png');
     $('#motif-image-container').html('<img id="motif-image" src="' + canvasDataURL + '">');
+    $('#generate-button').show();
   });
 
   $('#motif-text').focus();
@@ -312,5 +314,4 @@ TODO:
 - When pasting, sometimes doesn't update
 - Add more symbols
 - Take URL parameter
-- Add instructions and button to switch to canvas
 */
