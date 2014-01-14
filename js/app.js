@@ -134,7 +134,7 @@ var MotifSpeedWriter = (function() {
 
     return {
       code: match[1] ? match[1].toLowerCase() : 'nop',
-      duration: match[2] ? parseFloat(match[2]) : 1.0,
+      duration: match[2] ? parseFloat(match[2]) : 1,
       subsequences: subsequences
     };
   }; // parseTerm
@@ -291,5 +291,5 @@ TODO:
 - When pasting, sometimes doesn't update
 - Add more symbols
 - Take URL parameter
-- Watch floats vs integers
+- Add instructions and button to switch to canvas
 */
