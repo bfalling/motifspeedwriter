@@ -1,6 +1,3 @@
-h1 {
-  text-align: center;
-}
 #motif-image {
   display: block;
   margin: 20px auto;
@@ -10,8 +7,4 @@ h1 {
   display: block;
   margin: 20px auto;
   border: 1px solid #ccc;
-}
-#generate-button {
-  display: none;
-  text-align: center;
 }
