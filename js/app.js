@@ -1,7 +1,7 @@
 var MotifSpeedWriter = (function() {
 
   var appObject = {};
-  var lastMotifText = '';
+  var lastMotifText; // Leave undefined
 
   var devicePixelRatio = window.devicePixelRatio;
   var edgePadding = 20;
@@ -263,6 +263,10 @@ var MotifSpeedWriter = (function() {
       currentY += staffLineHeight; // Currently, it occupies a one unit height space
     };
 
+    // Generate image
+    var canvasDataURL = $('#motif-canvas')[0].toDataURL('image/png');
+    $('#motif-image-container').html('<img id="motif-image" src="' + canvasDataURL + '">');
+
   }; // generateMotif
 
   return appObject;
@@ -271,9 +275,7 @@ var MotifSpeedWriter = (function() {
 $(document).ready(function() {
   $('#motif-text-clear-button').click(function(event) {
     $('#motif-text').val('');
-    $('#motif-canvas').remove();
-    $('#motif-image').remove();
-    $('#generate-button').hide();
+    MotifSpeedWriter.generateMotif('');
     $('#motif-text').focus();
     event.preventDefault();
   });
@@ -298,15 +300,10 @@ $(document).ready(function() {
       };
     };
 
-    // Generate canvas image and then create image from it
     MotifSpeedWriter.generateMotif($(this).val());
-    var canvas = $('#motif-canvas');
-    var canvasDataURL = canvas[0].toDataURL('image/png');
-    $('#motif-image-container').html('<img id="motif-image" src="' + canvasDataURL + '">');
-    $('#generate-button').show();
   });
 
-  $('#motif-text').focus();
+  $('#motif-text-clear-button').click();
 });
 
 /*
