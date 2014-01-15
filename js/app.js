@@ -4,19 +4,36 @@ var MotifSpeedWriter = (function() {
   var lastMotifText; // Leave undefined
 
   var devicePixelRatio = window.devicePixelRatio;
-  var edgePadding = 20;
+  var edgePadding = 30;
   var unitWidth = 24;
   var unitHeight = 32;
   var termPadding = 3;
   var mainMotifThickness = 2;
   var staffLineHeight = 3 * termPadding;
 
+  var drawInitial = function() {
+    var canvas = $('#motif-canvas');
+    var context = canvas[0].getContext('2d');
+    context.scale(devicePixelRatio, devicePixelRatio);
+
+    context.fillStyle = 'white';
+    context.fillRect(0, 0, canvas.width(), canvas.height());
+
+    context.font = '0.1rem arial,sans-serif';
+    context.textAlign = 'center';
+    context.textBaseline = 'bottom';
+    context.fillStyle = '#ccc';
+    context.fillText('Motif SpeedWriter', canvas.width() / 2, canvas.height());
+
+    // Restore context scale factor
+    context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
+  };
+
   var drawTerm = function(type, duration, midX, startY, thickness) {
     var canvas = $('#motif-canvas')[0];
     var context = canvas.getContext('2d');
     context.scale(devicePixelRatio, devicePixelRatio);
     context.lineWidth = thickness;
-    //context.lineCap = 'round';
     context.strokeStyle = 'black';
     var stemHeight;
     switch (type) {
@@ -240,6 +257,8 @@ var MotifSpeedWriter = (function() {
     var totalCanvasWidth = unitWidth + 2 * edgePadding;
     var totalCanvasHeight = totalSequenceHeight + 2 * edgePadding;
     $('#motif-canvas').attr('width', totalCanvasWidth * devicePixelRatio).attr('height', totalCanvasHeight * devicePixelRatio).width(totalCanvasWidth).height(totalCanvasHeight);
+
+    drawInitial();
 
     var currentY = edgePadding;
     var midX = totalCanvasWidth / 2;
