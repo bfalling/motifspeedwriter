@@ -22,7 +22,7 @@ var MotifSpeedWriter = (function() {
     context.font = '0.1rem arial,sans-serif';
     context.textAlign = 'center';
     context.textBaseline = 'bottom';
-    context.fillStyle = '#ccc';
+    context.fillStyle = '#aaa';
     context.fillText('Motif SpeedWriter', canvas.width() / 2, canvas.height());
 
     // Restore context scale factor
