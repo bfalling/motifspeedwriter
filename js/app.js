@@ -46,7 +46,7 @@ var MotifSpeedWriter = (function() {
         context.lineTo(midX + unitWidth / 2, startY - 2 * termPadding);
         context.stroke();
         break;
-      case 'as':
+      case 'act':
         context.beginPath();
         stemHeight = duration * unitHeight - 2 * termPadding;
         context.moveTo(midX, startY - termPadding);
@@ -390,7 +390,9 @@ $(document).ready(function() {
 
 /*
 TODO:
-- When pasting, sometimes doesn't update
-- Add more symbols
-- Take URL parameter
+- Columns
+- Only save history if no errors
+- Dropdown box for help (still only inserts codes)
+- Move help text underneath for phone form
+- Small watermark on Firefox
 */
