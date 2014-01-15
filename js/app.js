@@ -35,7 +35,7 @@ var MotifSpeedWriter = (function() {
     context.scale(devicePixelRatio, devicePixelRatio);
     context.lineWidth = thickness;
     context.strokeStyle = 'black';
-    var stemHeight;
+    var stemHeight, endY, sideHeight;
     switch (type) {
       case 'beginstaff':
       case 'endstaff':
@@ -65,7 +65,7 @@ var MotifSpeedWriter = (function() {
         break;
       case 'ap':
         context.beginPath();
-        var endY = startY - termPadding;
+        endY = startY - termPadding;
         var quadraticCurveControlHeight = unitWidth / 10;
         context.moveTo(midX - unitWidth / 4, endY + quadraticCurveControlHeight / 2);
         context.quadraticCurveTo(midX - unitWidth / 8, endY - quadraticCurveControlHeight, midX, endY);
@@ -107,6 +107,49 @@ var MotifSpeedWriter = (function() {
         context.arc(midX, startY - termPadding - stemHeight, unitWidth / 4, 0, Math.PI, true);
         context.stroke();
         break;  
+      case 'rt':
+        context.beginPath();
+        endY = startY - termPadding;
+        context.moveTo(midX - unitWidth / 4, endY);
+        context.lineTo(midX + unitWidth / 4, endY - unitWidth / 2);
+        sideHeight = duration * unitHeight - 2 * termPadding - unitWidth / 2;
+        context.lineTo(midX + unitWidth / 4, endY - unitWidth / 2 - sideHeight);
+        context.lineTo(midX - unitWidth / 4, endY - sideHeight);
+        context.closePath();
+        context.stroke();
+        break;
+      case 'lt':
+        context.beginPath();
+        endY = startY - termPadding;
+        context.moveTo(midX + unitWidth / 4, endY);
+        context.lineTo(midX - unitWidth / 4, endY - unitWidth / 2);
+        sideHeight = duration * unitHeight - 2 * termPadding - unitWidth / 2;
+        context.lineTo(midX - unitWidth / 4, endY - unitWidth / 2 - sideHeight);
+        context.lineTo(midX + unitWidth / 4, endY - sideHeight);
+        context.closePath();
+        context.stroke();
+        break;
+      case 'at':
+        context.beginPath();
+        endY = startY - termPadding;
+        context.moveTo(midX - unitWidth / 4, endY);
+        context.lineTo(midX + unitWidth / 4, endY - unitWidth / 2);
+        sideHeight = duration * unitHeight - 2 * termPadding - unitWidth / 2;
+        context.lineTo(midX + unitWidth / 4, endY - unitWidth / 2 - sideHeight);
+        context.lineTo(midX - unitWidth / 4, endY - sideHeight);
+        context.closePath();
+        context.stroke();
+        context.beginPath();
+        context.moveTo(midX, endY - unitWidth / 4);
+        context.lineTo(midX + unitWidth / 4, endY);
+        context.lineTo(midX + unitWidth / 4, endY - unitWidth / 2);
+        context.stroke();
+        context.beginPath();
+        context.moveTo(midX, endY - unitWidth / 4 - sideHeight);
+        context.lineTo(midX - unitWidth / 4, endY - unitWidth / 2 - sideHeight);
+        context.lineTo(midX - unitWidth / 4, endY - sideHeight);
+        context.stroke();
+        break;
       default:
         break;
     }
