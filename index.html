@@ -37,10 +37,33 @@
       </div>
     </div>
     <div class="row">
-      <div id="motif-canvas-container" class="small-12 columns"></div>
-      <p id="generate-button" class="text-center hide">
-        <a href="#" data-reveal-id="motif-image-modal" class="small round button">Generate Downloadable Image</a>
-      </p>
+      <div id="left-info" class="small-4 columns">
+        <h3>Examples</h3>
+        <ul class="no-bullet">
+          <li><span class="motif-text">sp</span> &rarr; Straight Path for 1 unit</li>
+          <li><span class="motif-text">sp,sp3</span> &rarr; Add Straight Path for 3 units</li>
+          <li><span class="motif-text">||sp,sp3||</span> &rarr; Add Motif Staff</li>
+          <li><span class="motif-text">||sp,2,sp3||</span> &rarr; Insert no action for 2 units</li>
+          <li><span class="motif-text">||sp,2,sp3,ges4||</span> &rarr; Add Gesture</li>
+          <li><span class="motif-text">ges||sp,2,sp3,ges4||</span> &rarr; Start in Gesture</li>
+        </ul>
+      </div>
+      <div class="small-4 columns">
+        <div id="motif-canvas-container"></div>
+        <p id="generate-button" class="text-center hide">
+          <a href="#" data-reveal-id="motif-image-modal" class="small round button">Generate Downloadable Image</a>
+        </p>
+      </div>
+      <div id="right-info" class="small-4 columns text-right">
+        <h3>Reference</h3>
+        <ul class="no-bullet">
+          <li>Action Stroke (as)</li>
+          <li>Gesture (ges)</li>
+          <li>Any Path (ap)</li>
+          <li>Straight Path (sp)</li>
+          <li>Curved Path (cp)</li>
+        </ul>
+      </div>
     </div>
 
     <!-- Modal -->

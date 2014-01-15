@@ -1,3 +1,4 @@
+/* div { border: 1px solid gray; } */
 #motif-image {
   display: block;
   margin: 20px auto;
@@ -7,4 +8,17 @@
   display: block;
   margin: 20px auto;
   border: 1px solid #ccc;
+}
+#left-info h3, #left-info li, #right-info h3, #right-info li {
+  color: #999;
+}
+#left-info li, #right-info li {
+  font-size: 0.8rem;
+}
+#right-info li {
+  float: right !important;
+  clear: right;
+}
+.motif-text {
+  font-family: 'Courier New', Courier, monospace;
 }
