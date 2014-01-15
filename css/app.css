@@ -22,3 +22,10 @@
 .motif-text {
   font-family: 'Courier New', Courier, monospace;
 }
+#footer {
+  padding-top: 2rem;
+}
+#footer p {
+  color: #999;
+  font-size: 0.8rem;
+}
