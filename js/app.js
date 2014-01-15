@@ -11,6 +11,109 @@ var MotifSpeedWriter = (function() {
   var mainMotifThickness = 2;
   var staffLineHeight = 3 * termPadding;
 
+  var describeSequence = function(sequence) {
+    var description = '';
+    $.each(sequence, function(i, term) {
+      description += term.code + '-' + term.duration + ' ';
+      $.each(term.subsequences, function(i, subsequence) {
+        description += '[' + describeSequence(subsequence) + '] ';
+      });
+    });
+    return description;
+  }; // describeSequence
+
+  var parseSequence = function(sequenceText) {
+    if (sequenceText === '') {
+      return [];
+    };
+    // Split on top-level commas, and parse any inner groups
+    var depth = 0;
+    var terms = [];
+    var termInProgress = '';
+    for (var i = 0, len = sequenceText.length; i < len; i++) {
+      var charToProcess = sequenceText.charAt(i);
+      switch(charToProcess) {
+        case ',':
+          if (depth === 0) {
+            terms.push(parseTerm(termInProgress));
+            termInProgress = '';
+          } else {
+            termInProgress += charToProcess;
+          }
+          break;
+        case '(':
+          depth++;
+          termInProgress += charToProcess;
+          break;
+        case ')':
+          depth--;
+          termInProgress += charToProcess;
+          break;
+        default:
+          termInProgress += charToProcess;
+          break;
+      }
+    }
+    terms.push(parseTerm(termInProgress));
+    return terms;
+  }; // parseSequence
+
+  var parseTerm = function(termText) {
+    // Separate actual term from simultaneous sequences
+    var depth = 0;
+    var subsequences = [];
+    var subsequenceInProgress = '';
+    var simpleTermInProgress = '';
+
+    for (var i = 0, len = termText.length; i < len; i++) {
+      var charToProcess = termText.charAt(i);
+      switch(charToProcess) {
+        case '(':
+          if (depth === 0) {
+            depth++;
+            subsequenceInProgress = '';
+          } else {
+            subsequenceInProgress += charToProcess;
+          }
+          break;
+        case ')':
+          if (depth === 1) {
+            depth--;
+            subsequences.push(parseSequence(subsequenceInProgress));
+          } else if (depth === 0) {
+            console.log('Encountered extra right paren -- ignoring');
+          } else {
+            subsequenceInProgress += charToProcess;
+          }
+          break;
+        default:
+          if (depth === 0) {
+            simpleTermInProgress += charToProcess;
+          } else {
+            subsequenceInProgress += charToProcess;
+          }
+          break;
+      }
+    }
+
+    if (depth > 0) {
+      subsequences.push(parseSequence(subsequenceInProgress));
+    }
+
+    var simpleTermRegexp = /(\D*)(\d.*)?/i
+    var match = simpleTermRegexp.exec(simpleTermInProgress);
+
+    return {
+      code: match[1] ? match[1].toLowerCase() : 'nop',
+      duration: match[2] ? parseFloat(match[2]) : 1,
+      subsequences: subsequences
+    };
+  }; // parseTerm
+
+  var layoutSequence = function() {
+
+  };
+
   var drawInitial = function() {
     var canvas = $('#motif-canvas');
     var context = canvas[0].getContext('2d');
@@ -27,6 +130,10 @@ var MotifSpeedWriter = (function() {
 
     // Restore context scale factor
     context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
+  };
+
+  var drawSequence = function(sequence, startUnit) {
+
   };
 
   var drawTerm = function(type, duration, midX, startY, thickness) {
@@ -157,105 +264,6 @@ var MotifSpeedWriter = (function() {
     context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
   };
 
-  var describeSequence = function(sequence) {
-    var description = '';
-    $.each(sequence, function(i, term) {
-      description += term.code + '-' + term.duration + ' ';
-      $.each(term.subsequences, function(i, subsequence) {
-        description += '[' + describeSequence(subsequence) + '] ';
-      });
-    });
-    return description;
-  }; // describeSequence
-
-  var parseTerm = function(termText) {
-    // Separate actual term from simultaneous sequences
-    var depth = 0;
-    var subsequences = [];
-    var subsequenceInProgress = '';
-    var simpleTermInProgress = '';
-
-    for (var i = 0, len = termText.length; i < len; i++) {
-      var charToProcess = termText.charAt(i);
-      switch(charToProcess) {
-        case '(':
-          if (depth === 0) {
-            depth++;
-            subsequenceInProgress = '';
-          } else {
-            subsequenceInProgress += charToProcess;
-          }
-          break;
-        case ')':
-          if (depth === 1) {
-            depth--;
-            subsequences.push(parseSequence(subsequenceInProgress));
-          } else if (depth === 0) {
-            console.log('Encountered extra right paren -- ignoring');
-          } else {
-            subsequenceInProgress += charToProcess;
-          }
-          break;
-        default:
-          if (depth === 0) {
-            simpleTermInProgress += charToProcess;
-          } else {
-            subsequenceInProgress += charToProcess;
-          }
-          break;
-      }
-    }
-
-    if (depth > 0) {
-      subsequences.push(parseSequence(subsequenceInProgress));
-    }
-
-    var simpleTermRegexp = /(\D*)(\d.*)?/i
-    var match = simpleTermRegexp.exec(simpleTermInProgress);
-
-    return {
-      code: match[1] ? match[1].toLowerCase() : 'nop',
-      duration: match[2] ? parseFloat(match[2]) : 1,
-      subsequences: subsequences
-    };
-  }; // parseTerm
-
-  var parseSequence = function(sequenceText) {
-    if (sequenceText === '') {
-      return [];
-    };
-    // Split on top-level commas, and parse any inner groups
-    var depth = 0;
-    var terms = [];
-    var termInProgress = '';
-    for (var i = 0, len = sequenceText.length; i < len; i++) {
-      var charToProcess = sequenceText.charAt(i);
-      switch(charToProcess) {
-        case ',':
-          if (depth === 0) {
-            terms.push(parseTerm(termInProgress));
-            termInProgress = '';
-          } else {
-            termInProgress += charToProcess;
-          }
-          break;
-        case '(':
-          depth++;
-          termInProgress += charToProcess;
-          break;
-        case ')':
-          depth--;
-          termInProgress += charToProcess;
-          break;
-        default:
-          termInProgress += charToProcess;
-          break;
-      }
-    }
-    terms.push(parseTerm(termInProgress));
-    return terms;
-  }; // parseSequence
-
   appObject.loadPage = function() {
     var match = location.search.match(/motif=([^&]*)/);
     if (match) {
@@ -300,6 +308,9 @@ var MotifSpeedWriter = (function() {
     
     // Determine canvas dimensions needed and resize it
     // TODO: Handle subsequences and column lengths and thus total width of all columns
+    var numPreSequenceColumns = 0;
+    var preSequenceColumnEndUnits = [];
+
     var preSequenceDuration = 0;
     $.each(preSequence, function(i, term) {
       preSequenceDuration += term.duration;
