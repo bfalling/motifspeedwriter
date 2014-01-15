@@ -69,18 +69,18 @@ var MotifSpeedWriter = (function() {
       var charToProcess = termText.charAt(i);
       switch(charToProcess) {
         case '(':
-          if (depth === 0) {
-            depth++;
+          depth++;
+          if (depth === 1) {
             subsequenceInProgress = '';
           } else {
             subsequenceInProgress += charToProcess;
           }
           break;
         case ')':
-          if (depth === 1) {
-            depth--;
+          depth--;
+          if (depth === 0) {
             subsequences.push(parseSequence(subsequenceInProgress));
-          } else if (depth === 0) {
+          } else if (depth < 0) {
             console.log('Encountered extra right paren -- ignoring');
           } else {
             subsequenceInProgress += charToProcess;
