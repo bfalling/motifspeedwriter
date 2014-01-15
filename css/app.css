@@ -13,7 +13,7 @@
   border: 1px solid #ccc;
 }
 #left-info h3, #left-info li, #right-info h3, #right-info li {
-  color: #999;
+  color: #666;
 }
 #left-info li, #right-info li {
   font-size: 0.8rem;
@@ -29,6 +29,6 @@
   padding-top: 2rem;
 }
 #footer p {
-  color: #999;
+  color: #666;
   font-size: 0.8rem;
 }
