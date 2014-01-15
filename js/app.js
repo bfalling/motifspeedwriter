@@ -256,6 +256,17 @@ var MotifSpeedWriter = (function() {
     return terms;
   }; // parseSequence
 
+  appObject.loadPage = function() {
+    var match = location.search.match(/motif=([^&]*)/);
+    if (match) {
+      var motifText = decodeURIComponent(match[1] + '');
+      $('#motif-text').val(motifText);
+      MotifSpeedWriter.generateMotif(motifText);
+    } else {
+      $('#motif-text-clear-button').click();
+    }
+  }; // loadPage
+
   appObject.generateMotif = function(motifText) {
     if (motifText === lastMotifText) {
       return;
@@ -363,10 +374,18 @@ $(document).ready(function() {
       };
     };
 
-    MotifSpeedWriter.generateMotif($(this).val());
+    MotifSpeedWriter.generateMotif($this.val());
+
+    // Push new state to browser URL
+    var motifParam = $this.val() ? '?motif=' + encodeURIComponent($this.val()) : '';
+    window.history.pushState(null, 'Motif SpeedWriter | Laban Labs', location.pathname + motifParam);
   });
 
-  $('#motif-text-clear-button').click();
+  $(window).bind("popstate", function() {
+      MotifSpeedWriter.loadPage();
+  });
+
+  MotifSpeedWriter.loadPage();
 });
 
 /*
