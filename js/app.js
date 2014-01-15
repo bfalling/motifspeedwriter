@@ -236,8 +236,9 @@ var MotifSpeedWriter = (function() {
       mainSequence = parseSequence(cleanMotifText);
     }
 
-    console.log('PreSequence: ' + describeSequence(preSequence));
-    console.log('MainSequence: ' + describeSequence(mainSequence));
+    // DBG
+    //console.log('PreSequence: ' + describeSequence(preSequence));
+    //console.log('MainSequence: ' + describeSequence(mainSequence));
 
     // NOTE: Removing old canvas and creating a new one elminates border artifacts left when resizing on Safari
     $('#motif-canvas').remove();
