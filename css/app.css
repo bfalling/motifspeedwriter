@@ -1,4 +1,7 @@
 /* div { border: 1px solid gray; } */
+#motif-text-clear-button {
+  font-size: 1.5rem;
+}
 #motif-image {
   display: block;
   margin: 20px auto;
