@@ -185,7 +185,7 @@ var MotifSpeedWriter = (function() {
     context.lineWidth = mainMotifThickness;
     context.strokeStyle = 'black';
     context.beginPath();
-    var staffWidth = columnWidth % 2 === 1 ? columnWidth * unitWidth : (columnWidth + 1) * unitWidth;
+    var staffWidth = columnWidth * unitWidth;
     context.moveTo(midX - staffWidth / 2, startY - termPadding);
     context.lineTo(midX + staffWidth / 2, startY - termPadding);
     context.moveTo(midX - staffWidth / 2, startY - 2 * termPadding);
@@ -381,8 +381,7 @@ var MotifSpeedWriter = (function() {
     });
 
     var maxNumColumns = Math.max(preSequenceNumColumns, mainSequenceNumColumns);
-    var displayColumns = maxNumColumns % 2 === 1 ? maxNumColumns : maxNumColumns + 1;
-    var totalCanvasWidth = displayColumns * unitWidth + 2 * edgePadding;
+    var totalCanvasWidth = maxNumColumns * unitWidth + 2 * edgePadding;
     var totalCanvasHeight = (maxPreSequenceDuration + maxMainSequenceDuration) * unitHeight
                             + (showMotifStaff ? 2 * staffLineHeight : 0) + 2 * edgePadding;
 
@@ -397,13 +396,13 @@ var MotifSpeedWriter = (function() {
     var currentY = edgePadding;
 
     if (showMotifStaff) {
-      drawSequence(preSequence, midX, currentY);
+      drawSequence(preSequence, midX - (preSequenceNumColumns % 2 === 0 ? unitWidth / 2 : 0), currentY);
       currentY += maxPreSequenceDuration * unitHeight;
       drawStaff(maxNumColumns, midX, totalCanvasHeight - currentY);
       currentY += staffLineHeight;
     };
 
-    drawSequence(mainSequence, midX, currentY);
+    drawSequence(mainSequence, midX - (mainSequenceNumColumns % 2 === 0 ? unitWidth / 2 : 0), currentY);
     currentY += maxMainSequenceDuration * unitHeight;
 
     if (showMotifStaff) {
