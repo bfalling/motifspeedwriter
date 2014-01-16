@@ -1,7 +1,6 @@
 var MotifSpeedWriter = (function() {
 
   var appObject = {};
-  var lastMotifText; // Leave undefined
 
   var devicePixelRatio = window.devicePixelRatio;
   var edgePadding = 30;
@@ -10,6 +9,9 @@ var MotifSpeedWriter = (function() {
   var termPadding = 3;
   var mainMotifThickness = 2;
   var staffLineHeight = 3 * termPadding;
+
+  var numColumns;
+  var columnAvailableUnits;
 
   var describeSequence = function(sequence) {
     var description = '';
@@ -110,8 +112,37 @@ var MotifSpeedWriter = (function() {
     };
   }; // parseTerm
 
-  var layoutSequence = function() {
+  var layoutSequence = function(sequence, startUnit) {
+    sequence.startUnit = startUnit;
 
+    // Compute sequence duration
+    sequence.duration = 0;
+    $.each(sequence, function(i, term) {
+      sequence.duration += term.duration;
+    });
+
+    // Determine first available free column, or create new one
+    for (var i = 0; i < numColumns; i++) {
+      if (columnAvailableUnits[i] <= startUnit) {
+        sequence.column = i;
+        columnAvailableUnits[i] = startUnit + sequence.duration;
+        break;
+      }
+    };
+    if (sequence.column === undefined) {
+      sequence.column = numColumns;
+      columnAvailableUnits[numColumns] = startUnit + sequence.duration;
+      numColumns++;
+    }
+
+    // Recurse through each term's subsequences, if present
+    var currentUnit = 0;
+    $.each(sequence, function(i, term) {
+      $.each(term.subsequences, function(i, subsequence) {
+        layoutSequence(subsequence, startUnit + currentUnit);
+      });
+      currentUnit += term.duration;
+    });
   };
 
   var drawInitial = function() {
@@ -275,6 +306,7 @@ var MotifSpeedWriter = (function() {
     }
   }; // loadPage
 
+  var lastMotifText; // Leave undefined
   appObject.generateMotif = function(motifText) {
     if (motifText === lastMotifText) {
       return;
@@ -299,32 +331,52 @@ var MotifSpeedWriter = (function() {
     }
 
     // DBG
-    //console.log('PreSequence: ' + describeSequence(preSequence));
-    //console.log('MainSequence: ' + describeSequence(mainSequence));
+    console.log('PreSequence: ' + describeSequence(preSequence));
+    console.log('MainSequence: ' + describeSequence(mainSequence));
 
     // NOTE: Removing old canvas and creating a new one elminates border artifacts left when resizing on Safari
     $('#motif-canvas').remove();
     $('#motif-canvas-container').append('<canvas id="motif-canvas"></canvas>');
-    
-    // Determine canvas dimensions needed and resize it
-    // TODO: Handle subsequences and column lengths and thus total width of all columns
-    var numPreSequenceColumns = 0;
-    var preSequenceColumnEndUnits = [];
 
-    var preSequenceDuration = 0;
-    $.each(preSequence, function(i, term) {
-      preSequenceDuration += term.duration;
+    // Determine canvas dimensions needed and resize it
+
+    numColumns = 0;
+    columnAvailableUnits = [];
+    layoutSequence(preSequence, 0);
+    var preSequenceNumColumns = numColumns;
+    var maxPreSequenceDuration = 0;
+    $.each(columnAvailableUnits, function(i, unit) {
+      if (maxPreSequenceDuration < unit) {
+        maxPreSequenceDuration = unit;
+      }
     });
-    var mainSequenceDuration = 0;
-    $.each(mainSequence, function(i, term) {
-      mainSequenceDuration += term.duration;
-    })
-    var totalSequenceHeight = (preSequenceDuration + mainSequenceDuration) * unitHeight + (showMotifStaff ? 2 * staffLineHeight : 0);
-    var totalCanvasWidth = unitWidth + 2 * edgePadding;
-    var totalCanvasHeight = totalSequenceHeight + 2 * edgePadding;
-    $('#motif-canvas').attr('width', totalCanvasWidth * devicePixelRatio).attr('height', totalCanvasHeight * devicePixelRatio).width(totalCanvasWidth).height(totalCanvasHeight);
+
+    numColumns = 0;
+    columnAvailableUnits = [];
+    layoutSequence(mainSequence, 0);
+    var mainSequenceNumColumns = numColumns;
+    var maxMainSequenceDuration = 0;
+    $.each(columnAvailableUnits, function(i, unit) {
+      if (maxMainSequenceDuration < unit) {
+        maxMainSequenceDuration = unit;
+      }
+    });
+
+    var maxNumColumns = Math.max(preSequenceNumColumns, mainSequenceNumColumns);
+
+    // DBG
+    console.log('maxNumColumns: ' + maxNumColumns);
+
+    var totalCanvasWidth = maxNumColumns * unitWidth + 2 * edgePadding;
+    var totalCanvasHeight = (maxPreSequenceDuration + maxMainSequenceDuration) * unitHeight
+                            + (showMotifStaff ? 2 * staffLineHeight : 0) + 2 * edgePadding;
+
+    $('#motif-canvas').attr('width', totalCanvasWidth * devicePixelRatio).attr('height', totalCanvasHeight * devicePixelRatio)
+                      .width(totalCanvasWidth).height(totalCanvasHeight);
 
     drawInitial();
+
+    // TODO
 
     var currentY = edgePadding;
     var midX = totalCanvasWidth / 2;
@@ -402,6 +454,7 @@ $(document).ready(function() {
 /*
 TODO:
 - Columns
+- Use properties on functions to store globals
 - Only save history if no errors
 - Dropdown box for help (still only inserts codes)
 - Move help text underneath for phone form
