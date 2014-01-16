@@ -446,7 +446,11 @@ $(document).ready(function() {
       if ($this.val().charAt(cursorPos) !== '|') {
         $this.caret(' ');
       };
-    };
+    } else if (event.which === 57) {
+      // Left paren auto-adds right paren
+      $this.caret(')');
+      $this.caret(cursorPos);
+    }
 
     MotifSpeedWriter.generateMotif($this.val());
 
@@ -464,10 +468,8 @@ $(document).ready(function() {
 
 /*
 TODO:
-- Columns
 - Use properties on functions to store globals
 - Only save history if no errors
-- Dropdown box for help (still only inserts codes)
-- Move help text underneath for phone form
-- Small watermark on Firefox
+- Dropdown box for help (but still only inserts codes)
+- Watermark on Firefox is tiny
 */
