@@ -12,7 +12,7 @@
 
     <div class="row">
       <div class="small-12 columns">
-        <h1 class="text-center">Motif SpeedWriter <span class="success round label">Experimental</span></h1>
+        <h1 class="text-center">Motif SpeedWriter</h1>
         <p class="text-center">
           Premise: Creating Motifs should be fast and fun!
           &nbsp;&nbsp;<small><a href="#" data-reveal-id="about-modal">Wha?</a></small>
@@ -45,11 +45,13 @@
         <h3>Examples</h3>
         <ul class="no-bullet">
           <li><span class="motif-text">sp</span> &rarr; Straight Path for 1 unit</li>
-          <li><span class="motif-text">sp,sp3</span> &rarr; Add Straight Path for 3 units</li>
-          <li><span class="motif-text">||sp,sp3||</span> &rarr; Add Motif Staff</li>
-          <li><span class="motif-text">||sp,2,sp3||</span> &rarr; Insert 2 units of no movement</li>
-          <li><span class="motif-text">||sp,2,sp3,rt4||</span> &rarr; Add R Turn for 4 units</li>
-          <li><span class="motif-text">ges||sp,2,sp3,rt4||</span> &rarr; Start in Gesture</li>
+          <li><span class="motif-text">sp,act3</span> &rarr; Add Action Stroke for 3 units</li>
+          <li><span class="motif-text">||sp,act3||</span> &rarr; Add Motif Staff</li>
+          <li><span class="motif-text">||sp,2,act3||</span> &rarr; Insert 2 units of no movement</li>
+          <li><span class="motif-text">ges||sp,2,act3||</span> &rarr; Start in Gesture</li>
+          <li><span class="motif-text">ges||sp,2,act3(lt2)||</span> &rarr; Same time L Turn</li>
+          <li><span class="motif-text">ges||sp,2,act3(lt2,ges2)||</span> &rarr; Guess!</li>
+          <li><span class="motif-text">ges||sp(at),2,act3(lt2,ges2)||</span> &rarr; Guess!</li>
           <li>...Now try your own!</li>
         </ul>
       </div>
@@ -69,6 +71,7 @@
           <li>Left Turn (lt)</li>
           <li>Any Turn (at)</li>
           <li>Motif Staff Start/End (||)</li>
+          <li>Simultaneous Actions (parentheses)</li>
           <li>...more soon!</li>
           <li>&mdash;</li>
           <li>Commas separate terms</li>
@@ -82,7 +85,7 @@
     <div class="row">
       <div id="footer" class="small-12 columns text-center">
         <p>
-          &copy; 2014 Brenton Cheng | Another Laban Labs project
+          &copy; 2014 Brenton Cheng | Another <a href="http://www.labanlabs.org">Laban Labs</a> project
           <br>
           Modern browser required
         </p>
@@ -107,7 +110,33 @@
       <p>&mdash;Brenton</p>
       <p>
         <a href="https://www.facebook.com/bfalling" target="_blank"><img src="img/FB-f-Logo__blue_29.png" alt="Brenton on Facebook"></a>&nbsp;&nbsp;
-        <a href="https://twitter.com/bfalling" target="_blank"><img src="img/twitter-29.png" alt="Brenton on Twitter"></a>
+        <a href="https://twitter.com/bfalling" target="_blank"><img src="img/twitter-29.png" alt="Brenton on Twitter"></a>&nbsp;&nbsp;
+        Feedback:
+        <script type="text/javascript" language="javascript">
+        <!--
+        // Email obfuscator script 2.1 by Tim Williams, University of Arizona
+        // Random encryption key feature by Andrew Moulden, Site Engineering Ltd
+        // This code is freeware provided these four comment lines remain intact
+        // A wizard to generate this code is at http://www.jottings.com/obfuscator/
+        { coded = "a1z6AW6@amj33b6O.6zA"
+          key = "rZOAzploU6VqYSFc9Bbx1wEC7R3W48XPkfyMGHahNQL0gteKdJInumsT2Djvi5"
+          shift=coded.length
+          link=""
+          for (i=0; i<coded.length; i++) {
+            if (key.indexOf(coded.charAt(i))==-1) {
+              ltr = coded.charAt(i)
+              link += (ltr)
+            }
+            else {     
+              ltr = (key.indexOf(coded.charAt(i))-shift+key.length) % key.length
+              link += (key.charAt(ltr))
+            }
+          }
+        document.write("<a href='mailto:"+link+"'>"+link+"</a>")
+        }
+        //-->
+        </script><noscript>Use the Facebook and Twitter links.</noscript>
+
       </p>
       <a class="close-reveal-modal">&#215;</a>
     </div>
