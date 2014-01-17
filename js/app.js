@@ -285,7 +285,7 @@ var MotifSpeedWriter = (function() {
         context.closePath();
         context.stroke();
         break;
-      case 'at':
+      case 'avt':
         context.beginPath();
         endY = startY - termPadding;
         context.moveTo(midX - unitWidth / 4, endY);
@@ -304,6 +304,19 @@ var MotifSpeedWriter = (function() {
         context.moveTo(midX, endY - unitWidth / 4 - sideHeight);
         context.lineTo(midX - unitWidth / 4, endY - unitWidth / 2 - sideHeight);
         context.lineTo(midX - unitWidth / 4, endY - sideHeight);
+        context.stroke();
+        break;
+      case 'at':
+        context.beginPath();
+        endY = startY - termPadding;
+        context.moveTo(midX - unitWidth / 4, endY);
+        context.lineTo(midX, endY - unitWidth / 4);
+        context.lineTo(midX + unitWidth / 4, endY);
+        sideHeight = duration * unitHeight - 2 * termPadding;
+        context.lineTo(midX + unitWidth / 4, endY - sideHeight);
+        context.lineTo(midX, endY - sideHeight + unitWidth / 4);
+        context.lineTo(midX - unitWidth / 4, endY - sideHeight);
+        context.closePath();
         context.stroke();
         break;
       default:
