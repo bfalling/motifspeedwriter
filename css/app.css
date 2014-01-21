@@ -1,4 +1,15 @@
 /* div { border: 1px solid gray; } */
+.motif-text-prompt {
+  font-size: 1.4375rem;
+  line-height: 1.4;
+  font-family: "Open Sans", "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  font-style: normal;
+  color: #222222;
+  text-rendering: optimizeLegibility;
+  margin: 0.2rem 0 0.5rem;
+  padding: 0;
+}
 #motif-text-clear-button {
   font-size: 1.5rem;
 }
