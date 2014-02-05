@@ -248,19 +248,51 @@ var MotifSpeedWriter = (function() {
   };
 
   var drawTerm = function(type, duration, midX, startY, thickness) {
-    var low = !(type === 'act');
-    if (low) {
-      var canvas = $('#motif-canvas')[0];
-      var context = canvas.getContext('2d');
-      context.scale(devicePixelRatio, devicePixelRatio);
-      context.lineWidth = thickness;
-      context.strokeStyle = 'black';
-      var stemHeight, endY, sideHeight;
-    }
+    var canvas = $('#motif-canvas')[0];
+    var context = canvas.getContext('2d');
+    context.scale(devicePixelRatio, devicePixelRatio);
+    context.lineWidth = thickness;
+    context.strokeStyle = 'black';
+
+    var p = function(code) {
+      switch (code) {
+        case 'pby':
+          return startY - termPadding;
+        case 'pty':
+          return startY - duration * unitHeight + termPadding;
+        default:
+          return 0;
+      }
+    };
+    var drawPath = function(pathCommands) {
+      $.each(pathCommands, function(i, pathCommand) {
+        var points;
+        switch (pathCommand.cmd) {
+          case 'line':
+            points = pathCommand.params;
+            if (points.length > 1) {
+              context.beginPath();
+              var startPoint = points.shift();
+              context.moveTo(startPoint[0], startPoint[1]);
+              $.each(points, function(i, point) {
+                context.lineTo(point[0], point[1]);
+              });
+              context.stroke();
+            };
+            break;
+          default:
+            break;
+        }
+      });
+    };
+
+    // TODO: Remove
+    var stemHeight, endY, sideHeight;
+
     switch (type) {
       case 'act':
-        easyPath(duration, midX, startY, thickness, [
-          { cmd: 'line', params: ['0,pb', '0,pt'] }
+        drawPath([
+          { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] }
         ]);
         break;
       case 'ges':
@@ -376,10 +408,8 @@ var MotifSpeedWriter = (function() {
       default:
         break;
     }
-    if (low) {
-      // Restore context scale factor
-      context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
-    }
+    // Restore context scale factor
+    context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
   };
 
   appObject.loadPage = function() {
