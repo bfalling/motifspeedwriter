@@ -194,59 +194,6 @@ var MotifSpeedWriter = (function() {
     context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
   };
 
-  var easyPath = function(duration, midX, startY, thickness, paths) {
-    var canvas = $('#motif-canvas')[0];
-    var context = canvas.getContext('2d');
-    var ez2xy = function(ezp) {
-      var ezParts = ezp.replace(/\s/g, '').split(',');
-      var x, y;
-      switch (ezParts[0]) {
-        case '0':
-          x = midX;
-          break;
-        default:
-          x = midX;
-          break;
-      }
-      switch (ezParts[1]) {
-        case 'pb':
-          y = startY - termPadding;
-          break;
-        case 'pt':
-          y = startY - duration * unitHeight + termPadding;
-          break;
-        default:
-          y = startY - termPadding;
-          break;
-      }
-      return { x: x, y: y };
-    };
-    context.scale(devicePixelRatio, devicePixelRatio);
-    context.lineWidth = thickness;
-    context.strokeStyle = 'black';
-    $.each(paths, function(i, path) {
-      switch (path.cmd) {
-        case 'line':
-          var ezPoints = path.params;
-          if (ezPoints.length > 1) {
-            context.beginPath();
-            var startPoint = ez2xy(ezPoints.shift());
-            context.moveTo(startPoint.x, startPoint.y);
-            $.each(ezPoints, function(i, ezPoint) {
-              var point = ez2xy(ezPoint);
-              context.lineTo(point.x, point.y);
-            });
-            context.stroke();
-          };
-          break;
-        default:
-          break;
-      }
-    });
-    // Restore context scale factor
-    context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
-  };
-
   var drawTerm = function(type, duration, midX, startY, thickness) {
     var canvas = $('#motif-canvas')[0];
     var context = canvas.getContext('2d');
@@ -260,6 +207,10 @@ var MotifSpeedWriter = (function() {
           return startY - termPadding;
         case 'pty':
           return startY - duration * unitHeight + termPadding;
+        case '-uw4':
+          return midX - unitWidth / 4;
+        case '+uw4':
+          return midX + unitWidth / 4;
         default:
           return 0;
       }
@@ -280,6 +231,11 @@ var MotifSpeedWriter = (function() {
               context.stroke();
             };
             break;
+          case 'circle-hold':
+            context.beginPath();
+            origin = pathCommand.params;
+            context.arc(origin[0], origin[1], unitWidth / 8, 0, 2 * Math.PI, true);
+            context.stroke();
           default:
             break;
         }
@@ -296,14 +252,10 @@ var MotifSpeedWriter = (function() {
         ]);
         break;
       case 'ges':
-        context.beginPath();
-        stemHeight = duration * unitHeight - 2 * termPadding;
-        context.moveTo(midX, startY - termPadding);
-        context.lineTo(midX, startY - termPadding - stemHeight);
-        context.stroke();
-        context.beginPath();
-        context.arc(midX, startY - termPadding - unitHeight / 3.5, unitWidth / 8, 0, 2 * Math.PI, true);
-        context.stroke();
+        drawPath([
+          { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] },
+          { cmd: 'circle-hold', params: [midX, p('pby') - unitHeight / 3.5] }
+        ]);
         break;
       case 'ap':
         context.beginPath();
@@ -326,15 +278,11 @@ var MotifSpeedWriter = (function() {
         context.stroke();
         break;
       case 'sp':
-        context.beginPath();
-        context.moveTo(midX - unitWidth / 4, startY - termPadding);
-        context.lineTo(midX + unitWidth / 4, startY - termPadding);
-        stemHeight = duration * unitHeight - 2 * termPadding;
-        context.moveTo(midX, startY - termPadding);
-        context.lineTo(midX, startY - termPadding - stemHeight);
-        context.moveTo(midX - unitWidth / 4, startY - termPadding - stemHeight);
-        context.lineTo(midX + unitWidth / 4, startY - termPadding - stemHeight);
-        context.stroke();
+        drawPath([
+          { cmd: 'line', params: [[p('-uw4'), p('pby')], [p('+uw4'), p('pby')]] },
+          { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] },
+          { cmd: 'line', params: [[p('-uw4'), p('pty')], [p('+uw4'), p('pty')]] },
+        ]);
         break;
       case 'cp':
         context.beginPath();
