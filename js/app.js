@@ -197,18 +197,29 @@ var MotifSpeedWriter = (function() {
   var easyPath = function(duration, midX, startY, thickness, paths) {
     var canvas = $('#motif-canvas')[0];
     var context = canvas.getContext('2d');
-    var ez2xy = function(name) {
-      switch (name) {
-        case 'pb':
-          return { x: midX, y: startY - termPadding };
-          break;
-        case 'pt':
-          return { x: midX, y: startY - duration * unitHeight + termPadding };
+    var ez2xy = function(ezp) {
+      var ezParts = ezp.replace(/\s/g, '').split(',');
+      var x, y;
+      switch (ezParts[0]) {
+        case '0':
+          x = midX;
           break;
         default:
-          return false;
+          x = midX;
           break;
       }
+      switch (ezParts[1]) {
+        case 'pb':
+          y = startY - termPadding;
+          break;
+        case 'pt':
+          y = startY - duration * unitHeight + termPadding;
+          break;
+        default:
+          y = startY - termPadding;
+          break;
+      }
+      return { x: x, y: y };
     };
     context.scale(devicePixelRatio, devicePixelRatio);
     context.lineWidth = thickness;
@@ -249,7 +260,7 @@ var MotifSpeedWriter = (function() {
     switch (type) {
       case 'act':
         easyPath(duration, midX, startY, thickness, [
-          { cmd: 'line', params: ['pb', 'pt'] }
+          { cmd: 'line', params: ['0,pb', '0,pt'] }
         ]);
         break;
       case 'ges':
