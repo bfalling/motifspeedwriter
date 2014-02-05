@@ -194,20 +194,63 @@ var MotifSpeedWriter = (function() {
     context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
   };
 
-  var drawTerm = function(type, duration, midX, startY, thickness) {
+  var easyPath = function(duration, midX, startY, thickness, paths) {
     var canvas = $('#motif-canvas')[0];
     var context = canvas.getContext('2d');
+    var ez2xy = function(name) {
+      switch (name) {
+        case 'pb':
+          return { x: midX, y: startY - termPadding };
+          break;
+        case 'pt':
+          return { x: midX, y: startY - duration * unitHeight + termPadding };
+          break;
+        default:
+          return false;
+          break;
+      }
+    };
     context.scale(devicePixelRatio, devicePixelRatio);
     context.lineWidth = thickness;
     context.strokeStyle = 'black';
-    var stemHeight, endY, sideHeight;
+    $.each(paths, function(i, path) {
+      switch (path.cmd) {
+        case 'line':
+          var ezPoints = path.params;
+          if (ezPoints.length > 1) {
+            context.beginPath();
+            var startPoint = ez2xy(ezPoints.shift());
+            context.moveTo(startPoint.x, startPoint.y);
+            $.each(ezPoints, function(i, ezPoint) {
+              var point = ez2xy(ezPoint);
+              context.lineTo(point.x, point.y);
+            });
+            context.stroke();
+          };
+          break;
+        default:
+          break;
+      }
+    });
+    // Restore context scale factor
+    context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
+  };
+
+  var drawTerm = function(type, duration, midX, startY, thickness) {
+    var low = !(type === 'act');
+    if (low) {
+      var canvas = $('#motif-canvas')[0];
+      var context = canvas.getContext('2d');
+      context.scale(devicePixelRatio, devicePixelRatio);
+      context.lineWidth = thickness;
+      context.strokeStyle = 'black';
+      var stemHeight, endY, sideHeight;
+    }
     switch (type) {
       case 'act':
-        context.beginPath();
-        stemHeight = duration * unitHeight - 2 * termPadding;
-        context.moveTo(midX, startY - termPadding);
-        context.lineTo(midX, startY - termPadding - stemHeight);
-        context.stroke();
+        easyPath(duration, midX, startY, thickness, [
+          { cmd: 'line', params: ['pb', 'pt'] }
+        ]);
         break;
       case 'ges':
         context.beginPath();
@@ -322,8 +365,10 @@ var MotifSpeedWriter = (function() {
       default:
         break;
     }
-    // Restore context scale factor
-    context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
+    if (low) {
+      // Restore context scale factor
+      context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
+    }
   };
 
   appObject.loadPage = function() {
