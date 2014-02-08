@@ -200,124 +200,160 @@ var MotifSpeedWriter = (function() {
     context.scale(devicePixelRatio, devicePixelRatio);
     context.lineWidth = thickness;
     context.strokeStyle = 'black';
-    var stemHeight, endY, sideHeight;
+
+    var p = function(code) {
+      switch (code) {
+        case 'pby':
+          return startY - termPadding;
+        case 'pty':
+          return startY - duration * unitHeight + termPadding;
+        case '-uw4':
+          return midX - unitWidth / 4;
+        case '+uw4':
+          return midX + unitWidth / 4;
+        case 'uw2':
+          return unitWidth / 2;
+        case 'uw4':
+          return unitWidth / 4;
+        default:
+          return 0;
+      }
+    };
+    var drawPath = function(pathCommands) {
+      $.each(pathCommands, function(i, pathCommand) {
+        var params = pathCommand.params;
+        switch (pathCommand.cmd) {
+          case 'line':
+            if (params.length > 1) {
+              context.beginPath();
+              var startPoint = params.shift();
+              context.moveTo(startPoint[0], startPoint[1]);
+              $.each(params, function(i, point) {
+                context.lineTo(point[0], point[1]);
+              });
+              context.stroke();
+            };
+            break;
+          case 'line-close':
+            if (params.length > 1) {
+              context.beginPath();
+              var startPoint = params.shift();
+              context.moveTo(startPoint[0], startPoint[1]);
+              $.each(params, function(i, point) {
+                context.lineTo(point[0], point[1]);
+              });
+              context.closePath();
+              context.stroke();
+            };
+            break;
+          case 'circle-hold':
+            context.beginPath();
+            context.arc(params[0], params[1], unitWidth / 8, 0, 2 * Math.PI, true);
+            context.stroke();
+          case 'arc': // Always counter-clockwise
+            context.beginPath();
+            context.arc(params[0], params[1], params[2], params[3], params[4], true);
+            context.stroke();
+
+          default:
+            break;
+        }
+      });
+    };
+
     switch (type) {
       case 'act':
-        context.beginPath();
-        stemHeight = duration * unitHeight - 2 * termPadding;
-        context.moveTo(midX, startY - termPadding);
-        context.lineTo(midX, startY - termPadding - stemHeight);
-        context.stroke();
+        drawPath([
+          { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] }
+        ]);
         break;
       case 'ges':
-        context.beginPath();
-        stemHeight = duration * unitHeight - 2 * termPadding;
-        context.moveTo(midX, startY - termPadding);
-        context.lineTo(midX, startY - termPadding - stemHeight);
-        context.stroke();
-        context.beginPath();
-        context.arc(midX, startY - termPadding - unitHeight / 3.5, unitWidth / 8, 0, 2 * Math.PI, true);
-        context.stroke();
+        drawPath([
+          { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] },
+          { cmd: 'circle-hold', params: [midX, p('pby') - unitHeight / 3.5] }
+        ]);
         break;
       case 'ap':
         context.beginPath();
-        endY = startY - termPadding;
         var quadraticCurveControlHeight = unitWidth / 10;
-        context.moveTo(midX - unitWidth / 4, endY + quadraticCurveControlHeight / 2);
-        context.quadraticCurveTo(midX - unitWidth / 8, endY - quadraticCurveControlHeight, midX, endY);
-        context.quadraticCurveTo(midX + unitWidth / 8, endY + quadraticCurveControlHeight, midX + unitWidth / 4, endY - quadraticCurveControlHeight / 2);
+        context.moveTo(p('-uw4'), p('pby') + quadraticCurveControlHeight / 2);
+        context.quadraticCurveTo(midX - unitWidth / 8, p('pby') - quadraticCurveControlHeight, midX, p('pby'));
+        context.quadraticCurveTo(midX + unitWidth / 8, p('pby') + quadraticCurveControlHeight, p('+uw4'), p('pby') - quadraticCurveControlHeight / 2);
         context.stroke();
+        drawPath([
+          { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] }
+        ]);
         context.beginPath();
-        context.moveTo(midX, endY);
-        stemHeight = duration * unitHeight - 2 * termPadding;
-        endY = startY - termPadding - stemHeight;
-        context.lineTo(midX, endY);
-        context.stroke();
-        context.beginPath();
-        context.moveTo(midX - unitWidth / 4, endY + quadraticCurveControlHeight / 2);
-        context.quadraticCurveTo(midX - unitWidth / 8, endY - quadraticCurveControlHeight, midX, endY);
-        context.quadraticCurveTo(midX + unitWidth / 8, endY + quadraticCurveControlHeight, midX + unitWidth / 4, endY - quadraticCurveControlHeight / 2);
+        context.moveTo(midX - unitWidth / 4, p('pty') + quadraticCurveControlHeight / 2);
+        context.quadraticCurveTo(midX - unitWidth / 8, p('pty') - quadraticCurveControlHeight, midX, p('pty'));
+        context.quadraticCurveTo(midX + unitWidth / 8, p('pty') + quadraticCurveControlHeight, midX + unitWidth / 4, p('pty') - quadraticCurveControlHeight / 2);
         context.stroke();
         break;
       case 'sp':
-        context.beginPath();
-        context.moveTo(midX - unitWidth / 4, startY - termPadding);
-        context.lineTo(midX + unitWidth / 4, startY - termPadding);
-        stemHeight = duration * unitHeight - 2 * termPadding;
-        context.moveTo(midX, startY - termPadding);
-        context.lineTo(midX, startY - termPadding - stemHeight);
-        context.moveTo(midX - unitWidth / 4, startY - termPadding - stemHeight);
-        context.lineTo(midX + unitWidth / 4, startY - termPadding - stemHeight);
-        context.stroke();
+        drawPath([
+          { cmd: 'line', params: [[p('-uw4'), p('pby')], [p('+uw4'), p('pby')]] },
+          { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] },
+          { cmd: 'line', params: [[p('-uw4'), p('pty')], [p('+uw4'), p('pty')]] },
+        ]);
         break;
       case 'cp':
-        context.beginPath();
-        context.arc(midX, startY - termPadding, unitWidth / 4, 0, Math.PI, true);
-        context.stroke();
-        context.beginPath();
-        stemHeight = duration * unitHeight - 2 * termPadding - unitWidth / 4;
-        context.moveTo(midX, startY - termPadding - unitWidth / 4);
-        context.lineTo(midX, startY - termPadding - unitWidth / 4 - stemHeight);
-        context.stroke();
-        context.beginPath();
-        context.arc(midX, startY - termPadding - stemHeight, unitWidth / 4, 0, Math.PI, true);
-        context.stroke();
+        drawPath([
+          { cmd: 'arc', params: [midX, p('pby'), p('uw4'), 0, Math.PI] },
+          { cmd: 'line', params: [[midX, p('pby') - p('uw4')], [midX, p('pty')]] },
+          { cmd: 'arc', params: [midX, p('pty') + p('uw4'), p('uw4'), 0, Math.PI] }
+        ]);
         break;  
       case 'rt':
-        context.beginPath();
-        endY = startY - termPadding;
-        context.moveTo(midX - unitWidth / 4, endY);
-        context.lineTo(midX + unitWidth / 4, endY - unitWidth / 2);
-        sideHeight = duration * unitHeight - 2 * termPadding - unitWidth / 2;
-        context.lineTo(midX + unitWidth / 4, endY - unitWidth / 2 - sideHeight);
-        context.lineTo(midX - unitWidth / 4, endY - sideHeight);
-        context.closePath();
-        context.stroke();
+        drawPath([
+          { cmd: 'line-close', params: [
+            [p('-uw4'), p('pby')],
+            [p('+uw4'), p('pby') - p('uw2')],
+            [p('+uw4'), p('pty')],
+            [p('-uw4'), p('pty') + p('uw2')]
+          ] }
+        ]);
         break;
       case 'lt':
-        context.beginPath();
-        endY = startY - termPadding;
-        context.moveTo(midX + unitWidth / 4, endY);
-        context.lineTo(midX - unitWidth / 4, endY - unitWidth / 2);
-        sideHeight = duration * unitHeight - 2 * termPadding - unitWidth / 2;
-        context.lineTo(midX - unitWidth / 4, endY - unitWidth / 2 - sideHeight);
-        context.lineTo(midX + unitWidth / 4, endY - sideHeight);
-        context.closePath();
-        context.stroke();
+        drawPath([
+          { cmd: 'line-close', params: [
+            [p('+uw4'), p('pby')],
+            [p('-uw4'), p('pby') - p('uw2')],
+            [p('-uw4'), p('pty')],
+            [p('+uw4'), p('pty') + p('uw2')]
+          ] }
+        ]);
         break;
       case 'avt':
-        context.beginPath();
-        endY = startY - termPadding;
-        context.moveTo(midX - unitWidth / 4, endY);
-        context.lineTo(midX + unitWidth / 4, endY - unitWidth / 2);
-        sideHeight = duration * unitHeight - 2 * termPadding - unitWidth / 2;
-        context.lineTo(midX + unitWidth / 4, endY - unitWidth / 2 - sideHeight);
-        context.lineTo(midX - unitWidth / 4, endY - sideHeight);
-        context.closePath();
-        context.stroke();
-        context.beginPath();
-        context.moveTo(midX, endY - unitWidth / 4);
-        context.lineTo(midX + unitWidth / 4, endY);
-        context.lineTo(midX + unitWidth / 4, endY - unitWidth / 2);
-        context.stroke();
-        context.beginPath();
-        context.moveTo(midX, endY - unitWidth / 4 - sideHeight);
-        context.lineTo(midX - unitWidth / 4, endY - unitWidth / 2 - sideHeight);
-        context.lineTo(midX - unitWidth / 4, endY - sideHeight);
-        context.stroke();
+        drawPath([
+          { cmd: 'line-close', params: [
+            [p('-uw4'), p('pby')],
+            [p('+uw4'), p('pby') - p('uw2')],
+            [p('+uw4'), p('pty')],
+            [p('-uw4'), p('pty') + p('uw2')]
+          ] },
+          { cmd: 'line', params: [
+            [midX, p('pby') - p('uw4')],
+            [p('+uw4'), p('pby')],
+            [p('+uw4'), p('pby') - p('uw2')]
+          ]},
+          { cmd: 'line', params: [
+            [midX, p('pty') + p('uw4')],
+            [p('-uw4'), p('pty')],
+            [p('-uw4'), p('pty') + p('uw2')]
+          ]}
+        ]);
         break;
       case 'at':
-        context.beginPath();
-        endY = startY - termPadding;
-        context.moveTo(midX - unitWidth / 4, endY);
-        context.lineTo(midX, endY - unitWidth / 4);
-        context.lineTo(midX + unitWidth / 4, endY);
-        sideHeight = duration * unitHeight - 2 * termPadding;
-        context.lineTo(midX + unitWidth / 4, endY - sideHeight);
-        context.lineTo(midX, endY - sideHeight + unitWidth / 4);
-        context.lineTo(midX - unitWidth / 4, endY - sideHeight);
-        context.closePath();
-        context.stroke();
+        drawPath([
+          { cmd: 'line-close', params: [
+            [p('-uw4'), p('pby')],
+            [midX, p('pby') - p('uw4')],
+            [p('+uw4'), p('pby')],
+            [p('+uw4'), p('pty')],
+            [midX, p('pty') + p('uw4')],
+            [p('-uw4'), p('pty')]
+          ] }
+        ]);
         break;
       default:
         break;
