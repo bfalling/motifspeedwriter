@@ -7,8 +7,11 @@ var MotifSpeedWriter = (function() {
   var unitWidth = 24;
   var unitHeight = 32;
   var termPadding = 3;
+  var symbolPartPadding = 4;
   var mainMotifThickness = 2;
   var staffLineHeight = 3 * termPadding;
+  var holdCircleRadius = unitWidth / 7;
+  var weightCenterRadius = unitWidth / 5;
 
   var numColumns;
   var columnAvailableUnits;
@@ -216,7 +219,7 @@ var MotifSpeedWriter = (function() {
         case 'uw4':
           return unitWidth / 4;
         default:
-          return 0;
+          return termPadding;
       }
     };
     var drawPath = function(pathCommands) {
@@ -248,13 +251,21 @@ var MotifSpeedWriter = (function() {
             break;
           case 'circle-hold':
             context.beginPath();
-            context.arc(params[0], params[1], unitWidth / 8, 0, 2 * Math.PI, true);
+            context.arc(params[0], params[1], holdCircleRadius, 0, 2 * Math.PI, true);
             context.stroke();
+            break;
+          case 'circle-weight':
+            context.beginPath();
+            context.arc(params[0], params[1], weightCenterRadius, 0, 2 * Math.PI, true);
+            context.stroke();
+            context.fillStyle = 'black';
+            context.fill();
+            break;
           case 'arc': // Always counter-clockwise
             context.beginPath();
             context.arc(params[0], params[1], params[2], params[3], params[4], true);
             context.stroke();
-
+            break;
           default:
             break;
         }
@@ -271,6 +282,11 @@ var MotifSpeedWriter = (function() {
         drawPath([
           { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] },
           { cmd: 'circle-hold', params: [midX, p('pby') - unitHeight / 3.5] }
+        ]);
+        break;
+      case 'hold':
+        drawPath([
+          { cmd: 'circle-hold', params: [midX, p('pby') - holdCircleRadius] }
         ]);
         break;
       case 'ap':
@@ -355,6 +371,34 @@ var MotifSpeedWriter = (function() {
           ] }
         ]);
         break;
+      case 'bal':
+        drawPath([
+          { cmd: 'line-close', params: [
+            [p('-uw4'), p('pby') - 2 * weightCenterRadius - symbolPartPadding],
+            [p('-uw4'), p('pty')],
+            [p('+uw4'), p('pty')],
+            [p('+uw4'), p('pby') - 2 * weightCenterRadius - symbolPartPadding]
+          ] },
+          { cmd: 'circle-weight', params: [midX, p('pby') - weightCenterRadius] }
+        ]);
+        break;
+      case 'fal':
+        var falDirectionStartY = p('pby') - 2 * weightCenterRadius - symbolPartPadding;
+        var falDirectionHeight = falDirectionStartY - p('pty');
+        drawPath([
+          { cmd: 'line-close', params: [
+            [p('-uw4'), p('pby') - 2 * weightCenterRadius - symbolPartPadding],
+            [p('-uw4'), p('pty')],
+            [p('+uw4'), p('pty')],
+            [p('+uw4'), p('pby') - 2 * weightCenterRadius - symbolPartPadding]
+          ] },
+          { cmd: 'circle-weight', params: [midX, p('pby') - weightCenterRadius] },
+          { cmd: 'line', params: [
+            [midX - p('uw2'), falDirectionStartY - falDirectionHeight / 4],
+            [midX + p('uw2'), p('pty') + falDirectionHeight / 4]
+          ]}
+        ]);
+        break;
       default:
         break;
     }
@@ -368,6 +412,7 @@ var MotifSpeedWriter = (function() {
       var motifText = decodeURIComponent(match[1] + '');
       $('#motif-text').val(motifText);
       MotifSpeedWriter.generateMotif(motifText);
+      $('#motif-text').focus();
     } else {
       $('#motif-text-clear-button').click();
     }
