@@ -299,11 +299,13 @@ var MotifSpeedWriter = (function() {
         ]);
         break;
       case 'hold':
+      case 'hol': // DEPRECATE 2/23
         drawPath([
           { cmd: 'circle-hold', params: [midX, p('pby') - holdCircleRadius] }
         ]);
         break;
-      case 'ap':
+      case 'path':
+      case 'ap': // DEPRECATE 2/23
         context.beginPath();
         var quadraticCurveControlHeight = unitWidth / 10;
         context.moveTo(p('-nar2'), p('pby') + quadraticCurveControlHeight / 2);
@@ -319,41 +321,39 @@ var MotifSpeedWriter = (function() {
         context.quadraticCurveTo(midX + unitWidth / 8, p('pty') + quadraticCurveControlHeight, midX + unitWidth / 4, p('pty') - quadraticCurveControlHeight / 2);
         context.stroke();
         break;
-      case 'sp':
+      case 'stra':
+      case 'sp': // DEPRECATE 2/23
         drawPath([
           { cmd: 'line', params: [[p('-nar2'), p('pby')], [p('+nar2'), p('pby')]] },
           { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] },
           { cmd: 'line', params: [[p('-nar2'), p('pty')], [p('+nar2'), p('pty')]] },
         ]);
         break;
-      case 'cp':
+      case 'curv':
+      case 'cp': // DEPRECATE 2/23
         drawPath([
           { cmd: 'arc', params: [midX, p('pby'), p('nar2'), 0, Math.PI] },
           { cmd: 'line', params: [[midX, p('pby') - p('nar2')], [midX, p('pty')]] },
           { cmd: 'arc', params: [midX, p('pty') + p('nar2'), p('nar2'), 0, Math.PI] }
         ]);
         break;  
-      case 'rt':
+      case 'turn':
+      case 'at': // DEPRECATE 2/23
         drawPath([
           { cmd: 'line-close', params: [
             [p('-nar2'), p('pby')],
-            [p('+nar2'), p('pby') - p('nar')],
-            [p('+nar2'), p('pty')],
-            [p('-nar2'), p('pty') + p('nar')]
-          ] }
-        ]);
-        break;
-      case 'lt':
-        drawPath([
-          { cmd: 'line-close', params: [
+            [midX, p('pby') - p('nar2')],
             [p('+nar2'), p('pby')],
-            [p('-nar2'), p('pby') - p('nar')],
-            [p('-nar2'), p('pty')],
-            [p('+nar2'), p('pty') + p('nar')]
+            [p('+nar2'), p('pty')],
+            [midX, p('pty') + p('nar2')],
+            [p('-nar2'), p('pty')]
           ] }
         ]);
         break;
-      case 'avt':
+      case 'hturn':
+      case 'rlturn':
+      case 'lrturn':
+      case 'avt': // DEPRECATE 2/23
         drawPath([
           { cmd: 'line-close', params: [
             [p('-nar2'), p('pby')],
@@ -373,19 +373,32 @@ var MotifSpeedWriter = (function() {
           ]}
         ]);
         break;
-      case 'at':
+      case 'rhturn':
+      case 'rturn':
+      case 'rt': // DEPRECATE 2/23
         drawPath([
           { cmd: 'line-close', params: [
             [p('-nar2'), p('pby')],
-            [midX, p('pby') - p('nar2')],
-            [p('+nar2'), p('pby')],
+            [p('+nar2'), p('pby') - p('nar')],
             [p('+nar2'), p('pty')],
-            [midX, p('pty') + p('nar2')],
-            [p('-nar2'), p('pty')]
+            [p('-nar2'), p('pty') + p('nar')]
           ] }
         ]);
         break;
-      case 'bal':
+      case 'lhturn':
+      case 'lturn':
+      case 'lt': // DEPRECATE 2/23
+        drawPath([
+          { cmd: 'line-close', params: [
+            [p('+nar2'), p('pby')],
+            [p('-nar2'), p('pby') - p('nar')],
+            [p('-nar2'), p('pty')],
+            [p('+nar2'), p('pty') + p('nar')]
+          ] }
+        ]);
+        break;
+      case 'bala':
+      case 'bal': // DEPRECATE 2/23
         drawPath([
           { cmd: 'line-close', params: [
             [p('-nar2'), p('pby') - 2 * weightCenterRadius - symbolPartPadding],
@@ -396,7 +409,8 @@ var MotifSpeedWriter = (function() {
           { cmd: 'circle-weight', params: [midX, p('pby') - weightCenterRadius] }
         ]);
         break;
-      case 'fal':
+      case 'fall':
+      case 'fal': // DEPRECATE 2/23
         var falDirectionStartY = p('pby') - 2 * weightCenterRadius - symbolPartPadding;
         var falDirectionHeight = falDirectionStartY - p('pty');
         drawPath([
@@ -572,11 +586,3 @@ $(document).ready(function() {
 
   MotifSpeedWriter.loadPage();
 });
-
-/*
-TODO:
-- Use properties on functions to store globals
-- Only save history if no errors
-- Dropdown box for help (but still only inserts codes)
-- Watermark on Firefox is tiny
-*/
