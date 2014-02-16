@@ -427,6 +427,19 @@ var MotifSpeedWriter = (function() {
           ]}
         ]);
         break;
+      case 'air':
+        var airLaunchLandLength = (p('pby') - p('pty')) / 3;
+        drawPath([
+          { cmd: 'line', params: [[midX, p('pby')], [midX, p('pby') - airLaunchLandLength]] },
+          { cmd: 'line', params: [[midX, p('pty') + airLaunchLandLength], [midX, p('pty')]] }
+        ]);
+        context.beginPath();
+        context.moveTo(midX - termPadding, p('pby') - airLaunchLandLength);
+        context.quadraticCurveTo(midX - p('nar') * .8, p('pby') - (p('pby') - p('pty')) / 2, midX - termPadding, p('pty') + airLaunchLandLength);
+        context.moveTo(midX + termPadding, p('pby') - airLaunchLandLength);
+        context.quadraticCurveTo(midX + p('nar') * .8, p('pby') - (p('pby') - p('pty')) / 2, midX + termPadding, p('pty') + airLaunchLandLength);
+        context.stroke();
+        break;
       default:
         break;
     }
