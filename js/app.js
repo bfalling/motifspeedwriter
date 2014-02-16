@@ -4,14 +4,14 @@ var MotifSpeedWriter = (function() {
 
   var devicePixelRatio = window.devicePixelRatio;
   var edgePadding = 30;
-  var unitWidth = 24;
-  var unitHeight = 32;
+  var unitWidth = 28;
+  var unitHeight = 28;
   var termPadding = 3;
   var symbolPartPadding = 4;
   var mainMotifThickness = 2;
   var staffLineHeight = 3 * termPadding;
-  var holdCircleRadius = unitWidth / 7;
-  var weightCenterRadius = unitWidth / 5;
+  var holdCircleRadius = unitWidth / 9;
+  var weightCenterRadius = unitWidth / 7;
 
   var numColumns;
   var columnAvailableUnits;
@@ -210,14 +210,18 @@ var MotifSpeedWriter = (function() {
           return startY - termPadding;
         case 'pty':
           return startY - duration * unitHeight + termPadding;
-        case '-uw4':
-          return midX - unitWidth / 4;
-        case '+uw4':
-          return midX + unitWidth / 4;
-        case 'uw2':
-          return unitWidth / 2;
-        case 'uw4':
-          return unitWidth / 4;
+        case '-nar2':
+          return midX - unitWidth / 5;
+        case '+nar2':
+          return midX + unitWidth / 5;
+        case 'nar':
+          return unitWidth / 2.5;
+        case 'nar2':
+          return unitWidth / 5;
+        case 'plx':
+          return midX - unitWidth / 2 + termPadding;
+        case 'prx':
+          return midX + unitWidth / 2 - termPadding;
         default:
           return termPadding;
       }
@@ -273,6 +277,16 @@ var MotifSpeedWriter = (function() {
     };
 
     switch (type) {
+      case 'box':
+        drawPath([
+          { cmd: 'line-close', params: [
+            [p('plx'), p('pby')],
+            [p('plx'), p('pty')],
+            [p('prx'), p('pty')],
+            [p('prx'), p('pby')]
+          ] }
+        ]);
+        break;
       case 'act':
         drawPath([
           { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] }
@@ -292,9 +306,9 @@ var MotifSpeedWriter = (function() {
       case 'ap':
         context.beginPath();
         var quadraticCurveControlHeight = unitWidth / 10;
-        context.moveTo(p('-uw4'), p('pby') + quadraticCurveControlHeight / 2);
+        context.moveTo(p('-nar2'), p('pby') + quadraticCurveControlHeight / 2);
         context.quadraticCurveTo(midX - unitWidth / 8, p('pby') - quadraticCurveControlHeight, midX, p('pby'));
-        context.quadraticCurveTo(midX + unitWidth / 8, p('pby') + quadraticCurveControlHeight, p('+uw4'), p('pby') - quadraticCurveControlHeight / 2);
+        context.quadraticCurveTo(midX + unitWidth / 8, p('pby') + quadraticCurveControlHeight, p('+nar2'), p('pby') - quadraticCurveControlHeight / 2);
         context.stroke();
         drawPath([
           { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] }
@@ -307,77 +321,77 @@ var MotifSpeedWriter = (function() {
         break;
       case 'sp':
         drawPath([
-          { cmd: 'line', params: [[p('-uw4'), p('pby')], [p('+uw4'), p('pby')]] },
+          { cmd: 'line', params: [[p('-nar2'), p('pby')], [p('+nar2'), p('pby')]] },
           { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] },
-          { cmd: 'line', params: [[p('-uw4'), p('pty')], [p('+uw4'), p('pty')]] },
+          { cmd: 'line', params: [[p('-nar2'), p('pty')], [p('+nar2'), p('pty')]] },
         ]);
         break;
       case 'cp':
         drawPath([
-          { cmd: 'arc', params: [midX, p('pby'), p('uw4'), 0, Math.PI] },
-          { cmd: 'line', params: [[midX, p('pby') - p('uw4')], [midX, p('pty')]] },
-          { cmd: 'arc', params: [midX, p('pty') + p('uw4'), p('uw4'), 0, Math.PI] }
+          { cmd: 'arc', params: [midX, p('pby'), p('nar2'), 0, Math.PI] },
+          { cmd: 'line', params: [[midX, p('pby') - p('nar2')], [midX, p('pty')]] },
+          { cmd: 'arc', params: [midX, p('pty') + p('nar2'), p('nar2'), 0, Math.PI] }
         ]);
         break;  
       case 'rt':
         drawPath([
           { cmd: 'line-close', params: [
-            [p('-uw4'), p('pby')],
-            [p('+uw4'), p('pby') - p('uw2')],
-            [p('+uw4'), p('pty')],
-            [p('-uw4'), p('pty') + p('uw2')]
+            [p('-nar2'), p('pby')],
+            [p('+nar2'), p('pby') - p('nar')],
+            [p('+nar2'), p('pty')],
+            [p('-nar2'), p('pty') + p('nar')]
           ] }
         ]);
         break;
       case 'lt':
         drawPath([
           { cmd: 'line-close', params: [
-            [p('+uw4'), p('pby')],
-            [p('-uw4'), p('pby') - p('uw2')],
-            [p('-uw4'), p('pty')],
-            [p('+uw4'), p('pty') + p('uw2')]
+            [p('+nar2'), p('pby')],
+            [p('-nar2'), p('pby') - p('nar')],
+            [p('-nar2'), p('pty')],
+            [p('+nar2'), p('pty') + p('nar')]
           ] }
         ]);
         break;
       case 'avt':
         drawPath([
           { cmd: 'line-close', params: [
-            [p('-uw4'), p('pby')],
-            [p('+uw4'), p('pby') - p('uw2')],
-            [p('+uw4'), p('pty')],
-            [p('-uw4'), p('pty') + p('uw2')]
+            [p('-nar2'), p('pby')],
+            [p('+nar2'), p('pby') - p('nar')],
+            [p('+nar2'), p('pty')],
+            [p('-nar2'), p('pty') + p('nar')]
           ] },
           { cmd: 'line', params: [
-            [midX, p('pby') - p('uw4')],
-            [p('+uw4'), p('pby')],
-            [p('+uw4'), p('pby') - p('uw2')]
+            [midX, p('pby') - p('nar2')],
+            [p('+nar2'), p('pby')],
+            [p('+nar2'), p('pby') - p('nar')]
           ]},
           { cmd: 'line', params: [
-            [midX, p('pty') + p('uw4')],
-            [p('-uw4'), p('pty')],
-            [p('-uw4'), p('pty') + p('uw2')]
+            [midX, p('pty') + p('nar2')],
+            [p('-nar2'), p('pty')],
+            [p('-nar2'), p('pty') + p('nar')]
           ]}
         ]);
         break;
       case 'at':
         drawPath([
           { cmd: 'line-close', params: [
-            [p('-uw4'), p('pby')],
-            [midX, p('pby') - p('uw4')],
-            [p('+uw4'), p('pby')],
-            [p('+uw4'), p('pty')],
-            [midX, p('pty') + p('uw4')],
-            [p('-uw4'), p('pty')]
+            [p('-nar2'), p('pby')],
+            [midX, p('pby') - p('nar2')],
+            [p('+nar2'), p('pby')],
+            [p('+nar2'), p('pty')],
+            [midX, p('pty') + p('nar2')],
+            [p('-nar2'), p('pty')]
           ] }
         ]);
         break;
       case 'bal':
         drawPath([
           { cmd: 'line-close', params: [
-            [p('-uw4'), p('pby') - 2 * weightCenterRadius - symbolPartPadding],
-            [p('-uw4'), p('pty')],
-            [p('+uw4'), p('pty')],
-            [p('+uw4'), p('pby') - 2 * weightCenterRadius - symbolPartPadding]
+            [p('-nar2'), p('pby') - 2 * weightCenterRadius - symbolPartPadding],
+            [p('-nar2'), p('pty')],
+            [p('+nar2'), p('pty')],
+            [p('+nar2'), p('pby') - 2 * weightCenterRadius - symbolPartPadding]
           ] },
           { cmd: 'circle-weight', params: [midX, p('pby') - weightCenterRadius] }
         ]);
@@ -387,15 +401,15 @@ var MotifSpeedWriter = (function() {
         var falDirectionHeight = falDirectionStartY - p('pty');
         drawPath([
           { cmd: 'line-close', params: [
-            [p('-uw4'), p('pby') - 2 * weightCenterRadius - symbolPartPadding],
-            [p('-uw4'), p('pty')],
-            [p('+uw4'), p('pty')],
-            [p('+uw4'), p('pby') - 2 * weightCenterRadius - symbolPartPadding]
+            [p('-nar2'), p('pby') - 2 * weightCenterRadius - symbolPartPadding],
+            [p('-nar2'), p('pty')],
+            [p('+nar2'), p('pty')],
+            [p('+nar2'), p('pby') - 2 * weightCenterRadius - symbolPartPadding]
           ] },
           { cmd: 'circle-weight', params: [midX, p('pby') - weightCenterRadius] },
           { cmd: 'line', params: [
-            [midX - p('uw2'), falDirectionStartY - falDirectionHeight / 4],
-            [midX + p('uw2'), p('pty') + falDirectionHeight / 4]
+            [midX - p('nar'), falDirectionStartY - falDirectionHeight / 4],
+            [midX + p('nar'), p('pty') + falDirectionHeight / 4]
           ]}
         ]);
         break;
