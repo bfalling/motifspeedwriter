@@ -304,6 +304,19 @@ var MotifSpeedWriter = (function() {
           { cmd: 'circle-hold', params: [midX, p('pby') - holdCircleRadius] }
         ]);
         break;
+      case 'rel':
+        drawPath([
+          { cmd: 'arc', params: [midX - 2, p('pty') + holdCircleRadius, holdCircleRadius, 0, Math.PI] },
+          { cmd: 'arc', params: [midX + 2, p('pty') + holdCircleRadius, holdCircleRadius, Math.PI, 2 * Math.PI] }
+        ]);
+        break;
+      case 'holdrel':
+        drawPath([
+          { cmd: 'circle-hold', params: [midX, p('pby') - holdCircleRadius] },
+          { cmd: 'arc', params: [midX - 2, p('pty') + holdCircleRadius, holdCircleRadius, 0, Math.PI] },
+          { cmd: 'arc', params: [midX + 2, p('pty') + holdCircleRadius, holdCircleRadius, Math.PI, 2 * Math.PI] }
+        ]);
+        break;
       case 'path':
       case 'ap': // DEPRECATE 2/23
         context.beginPath();
