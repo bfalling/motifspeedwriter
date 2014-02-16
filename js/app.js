@@ -4,14 +4,14 @@ var MotifSpeedWriter = (function() {
 
   var devicePixelRatio = window.devicePixelRatio;
   var edgePadding = 30;
-  var unitWidth = 24;
-  var unitHeight = 32;
+  var unitWidth = 28;
+  var unitHeight = 28;
   var termPadding = 3;
   var symbolPartPadding = 4;
   var mainMotifThickness = 2;
   var staffLineHeight = 3 * termPadding;
-  var holdCircleRadius = unitWidth / 7;
-  var weightCenterRadius = unitWidth / 5;
+  var holdCircleRadius = unitWidth / 9;
+  var weightCenterRadius = unitWidth / 7;
 
   var numColumns;
   var columnAvailableUnits;
@@ -211,13 +211,17 @@ var MotifSpeedWriter = (function() {
         case 'pty':
           return startY - duration * unitHeight + termPadding;
         case '-uw4':
-          return midX - unitWidth / 4;
+          return midX - unitWidth / 5;
         case '+uw4':
-          return midX + unitWidth / 4;
+          return midX + unitWidth / 5;
         case 'uw2':
-          return unitWidth / 2;
+          return unitWidth / 2.5;
         case 'uw4':
-          return unitWidth / 4;
+          return unitWidth / 5;
+        case 'plx':
+          return midX - unitWidth / 2 + termPadding;
+        case 'prx':
+          return midX + unitWidth / 2 - termPadding;
         default:
           return termPadding;
       }
@@ -273,6 +277,16 @@ var MotifSpeedWriter = (function() {
     };
 
     switch (type) {
+      case 'box':
+        drawPath([
+          { cmd: 'line-close', params: [
+            [p('plx'), p('pby')],
+            [p('plx'), p('pty')],
+            [p('prx'), p('pty')],
+            [p('prx'), p('pby')]
+          ] }
+        ]);
+        break;
       case 'act':
         drawPath([
           { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] }
