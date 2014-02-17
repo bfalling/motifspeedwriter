@@ -222,6 +222,8 @@ var MotifSpeedWriter = (function() {
           return midX - unitWidth / 2 + termPadding;
         case 'prx':
           return midX + unitWidth / 2 - termPadding;
+        case 'cny':
+          return startY - duration * unitHeight / 2;
         default:
           return termPadding;
       }
@@ -253,6 +255,18 @@ var MotifSpeedWriter = (function() {
               context.stroke();
             };
             break;
+          case 'circle':
+            context.beginPath();
+            context.arc(params[0], params[1], params[2], 0, 2 * Math.PI, true);
+            context.stroke();
+            break;
+          case 'circle-filled':
+            context.beginPath();
+            context.arc(params[0], params[1], params[2], 0, 2 * Math.PI, true);
+            context.stroke();
+            context.fillStyle = 'black';
+            context.fill();
+            break;
           case 'circle-hold':
             context.beginPath();
             context.arc(params[0], params[1], holdCircleRadius, 0, 2 * Math.PI, true);
@@ -268,6 +282,28 @@ var MotifSpeedWriter = (function() {
           case 'arc': // Always counter-clockwise
             context.beginPath();
             context.arc(params[0], params[1], params[2], params[3], params[4], true);
+            context.stroke();
+            break;
+          case 'eight':
+            var eightCenterX = params[0];
+            var eightCenterY = params[1];
+            var eightWidth = params[2];
+            var eightHeight = params[3];
+            var eightLeft
+            context.beginPath();
+            context.moveTo(eightCenterX, eightCenterY - eightHeight / 2);
+            context.bezierCurveTo(eightCenterX - eightWidth / 2, eightCenterY - eightHeight / 2,
+                                  eightCenterX - eightWidth / 2, eightCenterY - eightWidth / 2,
+                                  eightCenterX, eightCenterY);
+            context.bezierCurveTo(eightCenterX + eightWidth / 2, eightCenterY + eightWidth / 2,
+                                  eightCenterX + eightWidth / 2, eightCenterY + eightHeight / 2,
+                                  eightCenterX, eightCenterY + eightHeight / 2);
+            context.bezierCurveTo(eightCenterX - eightWidth / 2, eightCenterY + eightHeight / 2,
+                                  eightCenterX - eightWidth / 2, eightCenterY + eightWidth / 2,
+                                  eightCenterX, eightCenterY);
+            context.bezierCurveTo(eightCenterX + eightWidth / 2, eightCenterY - eightWidth / 2,
+                                  eightCenterX + eightWidth / 2, eightCenterY - eightHeight / 2,
+                                  eightCenterX, eightCenterY - eightHeight / 2);
             context.stroke();
             break;
           default:
@@ -448,10 +484,51 @@ var MotifSpeedWriter = (function() {
         ]);
         context.beginPath();
         context.moveTo(midX - termPadding, p('pby') - airLaunchLandLength);
-        context.quadraticCurveTo(midX - p('nar') * .8, p('pby') - (p('pby') - p('pty')) / 2, midX - termPadding, p('pty') + airLaunchLandLength);
+        context.quadraticCurveTo(midX - p('nar') * .8, p('cny'), midX - termPadding, p('pty') + airLaunchLandLength);
         context.moveTo(midX + termPadding, p('pby') - airLaunchLandLength);
-        context.quadraticCurveTo(midX + p('nar') * .8, p('pby') - (p('pby') - p('pty')) / 2, midX + termPadding, p('pty') + airLaunchLandLength);
+        context.quadraticCurveTo(midX + p('nar') * .8, p('cny'), midX + termPadding, p('pty') + airLaunchLandLength);
         context.stroke();
+        break;
+      case 'breath':
+        drawPath([
+          { cmd: 'eight', params: [midX, p('cny'), unitWidth / 3, p('pby') - p('pty') - 2 * termPadding] },
+          { cmd: 'circle', params: [midX, p('cny'), (p('pby') - p('pty')) / 5] }
+        ]);
+        break;
+      case 'coredist':
+        drawPath([
+          { cmd: 'eight', params: [midX, p('cny'), unitWidth / 3, p('pby') - p('pty') - 2 * termPadding] },
+          { cmd: 'line', params: [[p('plx'), p('pby')], [p('prx'), p('pty')]] },
+          { cmd: 'line', params: [[p('plx'), p('pty')], [p('prx'), p('pby')]] },
+          { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] },
+          { cmd: 'circle-filled', params: [midX, p('cny'), (p('pby') - p('pty')) / 7] }
+        ]);
+        break;
+      case 'headtail':
+        drawPath([
+          { cmd: 'eight', params: [midX, p('cny'), unitWidth / 3, p('pby') - p('pty') - 2 * termPadding] },
+          { cmd: 'line', params: [[midX, p('pby')], [midX, p('pby') - termPadding]] },
+          { cmd: 'line', params: [[midX, p('pty')], [midX, p('pty') + termPadding]] }
+        ]);
+        break;
+      case 'uplo':
+        drawPath([
+          { cmd: 'eight', params: [midX, p('cny'), unitWidth / 3, p('pby') - p('pty') - 2 * termPadding] },
+          { cmd: 'line', params: [[p('plx'), p('cny')], [p('prx'), p('cny')]] }
+        ]);
+        break;
+      case 'bodyhalf':
+        drawPath([
+          { cmd: 'eight', params: [midX, p('cny'), unitWidth / 3, p('pby') - p('pty') - 2 * termPadding] },
+          { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] }
+        ]);
+        break;
+      case 'crosslat':
+        drawPath([
+          { cmd: 'eight', params: [midX, p('cny'), unitWidth / 3, p('pby') - p('pty') - 2 * termPadding] },
+          { cmd: 'line', params: [[p('plx'), p('pby')], [p('prx'), p('pty')]] },
+          { cmd: 'line', params: [[p('plx'), p('pty')], [p('prx'), p('pby')]] }
+        ]);
         break;
       default:
         break;
