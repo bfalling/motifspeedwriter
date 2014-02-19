@@ -44,6 +44,9 @@
   #right-info {
     text-align: right !important;
   }
+  #right-info h4 {
+    clear: right;
+  }
   #right-info li {
     float: right !important;
     clear: right;
