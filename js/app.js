@@ -17,6 +17,8 @@ var MotifSpeedWriter = (function() {
   var numColumns;
   var columnAvailableUnits;
 
+  var EFFORTS = ['eff', 'flo', 'fre', 'bou', 'wei', 'lig', 'str', 'lmp', 'hvy', 'wse', 'lws', 'sws', 'tim', 'sus', 'qui', 'spa', 'ind', 'dir'];
+
   var describeSequence = function(sequence) {
     var description = '';
     $.each(sequence, function(i, term) {
@@ -198,7 +200,7 @@ var MotifSpeedWriter = (function() {
     context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
   };
 
-  var drawTerm = function(type, duration, midX, startY, thickness) {
+  var drawTerm = function(termCode, duration, midX, startY, thickness) {
     var canvas = $('#motif-canvas')[0];
     var context = canvas.getContext('2d');
     context.scale(devicePixelRatio, devicePixelRatio);
@@ -233,14 +235,26 @@ var MotifSpeedWriter = (function() {
           return termPadding;
       }
     };
+
+    // Origin at lower left
+    var gridX = function(x) {
+      var gridUnit = (p('prx') - p('plx')) / 7;
+      return p('plx') + x * gridUnit;
+    };
+    var gridY = function(y) {
+      var gridUnit = (p('pby') - p('puty')) / 7;
+      return p('pby') - y * gridUnit;
+    };
+
     var drawPath = function(pathCommands) {
       $.each(pathCommands, function(i, pathCommand) {
         var params = pathCommand.params;
+        var startPoint;
         switch (pathCommand.cmd) {
           case 'line':
             if (params.length > 1) {
               context.beginPath();
-              var startPoint = params.shift();
+              startPoint = params.shift();
               context.moveTo(startPoint[0], startPoint[1]);
               $.each(params, function(i, point) {
                 context.lineTo(point[0], point[1]);
@@ -251,12 +265,23 @@ var MotifSpeedWriter = (function() {
           case 'line-close':
             if (params.length > 1) {
               context.beginPath();
-              var startPoint = params.shift();
+              startPoint = params.shift();
               context.moveTo(startPoint[0], startPoint[1]);
               $.each(params, function(i, point) {
                 context.lineTo(point[0], point[1]);
               });
               context.closePath();
+              context.stroke();
+            };
+            break;
+          case 'line-7x7':
+            if (params.length > 1) {
+              context.beginPath();
+              startPoint = params.shift();
+              context.moveTo(gridX(startPoint[0]), gridY(startPoint[1]));
+              $.each(params, function(i, point) {
+                context.lineTo(gridX(point[0]), gridY(point[1]));
+              });
               context.stroke();
             };
             break;
@@ -330,9 +355,63 @@ var MotifSpeedWriter = (function() {
         drawPath([
           { cmd: 'eight', params: [midX, p('cuy'), unitWidth / 3, unitHeight - 4 * termPadding] }
         ]);      
-    }
+    };
 
-    switch (type) {
+    var drawEfforts = function(effortParts) {
+
+      // TODO: Remove once we've got spacing worked out
+      // Reference box
+      context.lineWidth = 1;
+      context.strokeStyle = '#ccc';
+      drawPath([
+        { cmd: 'line-7x7', params: [[0, 0], [0, 7], [7, 7], [7, 0], [0, 0]] }
+      ]);
+      context.lineWidth = thickness;
+      context.strokeStyle = 'black';
+      
+      drawPath([
+        { cmd: 'line-7x7', params: [[3, 3], [4.5, 4.5]] }
+      ]);
+      $.each(effortParts, function(i, effortPart) {
+        switch (effortPart) {
+          case 'flo':
+            drawPath([
+              { cmd: 'line-7x7', params: [[0, 3], [6, 3]] }
+            ]);
+            break;
+          case 'wei':
+            drawPath([
+              { cmd: 'line-7x7', params: [[3, 0], [3, 6]] }
+            ]);
+            break;
+          case 'tim':
+            drawPath([
+              { cmd: 'line-7x7', params: [[1, 1.5], [2, 1.5]] },
+              { cmd: 'line-7x7', params: [[4, 1.5], [5, 1.5]] }
+            ]);
+            break;
+          case 'spa':
+            drawPath([
+              { cmd: 'line-7x7', params: [[4.5, 7], [4.5, 4.5], [7,4.5]] }
+            ]);
+            break;
+        }
+      });
+    };
+
+    // Parse combo terms
+    var termParams;
+    if (termCode.indexOf('+') > -1) {
+      termParams = termCode.split('+');
+      termCode = termParams[0];
+    } else {
+      termParams = [termCode];
+    }
+    if ($.inArray(termCode, EFFORTS) > -1) {
+      termCode = 'effort';
+    };
+
+    switch (termCode) {
       case 'box':
         drawPath([
           { cmd: 'line-close', params: [
@@ -555,6 +634,10 @@ var MotifSpeedWriter = (function() {
           { cmd: 'line', params: [[p('plx') + termPadding, p('pby') - termPadding], [p('prx') - termPadding, p('puty') + termPadding]] },
           { cmd: 'line', params: [[p('plx') + termPadding, p('puty') + termPadding], [p('prx') - termPadding, p('pby') - termPadding]] }
         ]);
+        break;
+      case 'effort':
+        drawEfforts(termParams);
+        drawContinuation();
         break;
       default:
         break;
