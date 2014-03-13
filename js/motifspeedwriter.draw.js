@@ -253,7 +253,6 @@ var MotifSpeedWriter = (function(my, $) {
         ]);
         break;
       case 'hold':
-      case 'hol': // DEPRECATE 2/23
         drawPath([
           { cmd: 'circle-hold', params: [midX, p('pby') - defs.holdCircleRadius] }
         ]);
@@ -272,7 +271,6 @@ var MotifSpeedWriter = (function(my, $) {
         ]);
         break;
       case 'path':
-      case 'ap': // DEPRECATE 2/23
         context.beginPath();
         var quadraticCurveControlHeight = defs.unitSize / 10;
         context.moveTo(p('-nar2'), p('pby') + quadraticCurveControlHeight / 2);
@@ -289,7 +287,6 @@ var MotifSpeedWriter = (function(my, $) {
         context.stroke();
         break;
       case 'stra':
-      case 'sp': // DEPRECATE 2/23
         drawPath([
           { cmd: 'line', params: [[p('-nar2'), p('pby')], [p('+nar2'), p('pby')]] },
           { cmd: 'line', params: [[midX, p('pby')], [midX, p('pty')]] },
@@ -297,7 +294,6 @@ var MotifSpeedWriter = (function(my, $) {
         ]);
         break;
       case 'curv':
-      case 'cp': // DEPRECATE 2/23
         drawPath([
           { cmd: 'arc', params: [midX, p('pby'), p('nar2'), Math.PI, 2 * Math.PI] },
           { cmd: 'line', params: [[midX, p('pby') - p('nar2')], [midX, p('pty')]] },
@@ -305,7 +301,6 @@ var MotifSpeedWriter = (function(my, $) {
         ]);
         break;  
       case 'turn':
-      case 'at': // DEPRECATE 2/23
         drawPath([
           { cmd: 'line-close', params: [
             [p('-nar2'), p('pby')],
@@ -320,7 +315,6 @@ var MotifSpeedWriter = (function(my, $) {
       case 'hturn':
       case 'rlturn':
       case 'lrturn':
-      case 'avt': // DEPRECATE 2/23
         drawPath([
           { cmd: 'line-close', params: [
             [p('-nar2'), p('pby')],
@@ -342,7 +336,6 @@ var MotifSpeedWriter = (function(my, $) {
         break;
       case 'rhturn':
       case 'rturn':
-      case 'rt': // DEPRECATE 2/23
         drawPath([
           { cmd: 'line-close', params: [
             [p('-nar2'), p('pby')],
@@ -354,7 +347,6 @@ var MotifSpeedWriter = (function(my, $) {
         break;
       case 'lhturn':
       case 'lturn':
-      case 'lt': // DEPRECATE 2/23
         drawPath([
           { cmd: 'line-close', params: [
             [p('+nar2'), p('pby')],
@@ -365,7 +357,6 @@ var MotifSpeedWriter = (function(my, $) {
         ]);
         break;
       case 'bala':
-      case 'bal': // DEPRECATE 2/23
         drawPath([
           { cmd: 'line-close', params: [
             [p('-nar2'), p('pby') - 2 * defs.weightCenterRadius - defs.symbolPartPadding],
@@ -377,7 +368,6 @@ var MotifSpeedWriter = (function(my, $) {
         ]);
         break;
       case 'fall':
-      case 'fal': // DEPRECATE 2/23
         var falDirectionStartY = p('pby') - 2 * defs.weightCenterRadius - defs.symbolPartPadding;
         var falDirectionHeight = falDirectionStartY - p('pty');
         drawPath([
