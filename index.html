@@ -90,11 +90,29 @@
           <li>Cross-Lateral (crosslat)</li>
         </ul>
 
+        <h4>Effort</h4>
+        <ul class="no-bullet">
+          <li>Effort Action Stroke (eff)</li>
+          <li>Flow (flo)</li>
+          <li>Free (fre)</li>
+          <li>Bound (bou)</li>
+          <li>Weight (wei)</li>
+          <li>Light (lig)</li>
+          <li>Strong (str)</li>
+          <li>Time (tim)</li>
+          <li>Sustained (sus)</li>
+          <li>Quick (qui)</li>
+          <li>Space Effort (spa)</li>
+          <li>Indirect (ind)</li>
+          <li>Direct (dir)</li>
+        </ul>
+
         <h4>Meta</h4>
         <ul class="no-bullet">
           <li>Motif Staff Start/End (||)</li>
           <li>Empty Box (box)</li>
           <li>Simultaneous Actions (parentheses)</li>
+          <li>Combine Efforts (+)</li>
           <li>...more soon!</li>
           <li>&mdash;</li>
           <li>Commas separate terms</li>
@@ -113,8 +131,9 @@
           <li><span class="motif-text">||stra,2,act3||</span> &rarr; Insert 2 units of no movement</li>
           <li><span class="motif-text">ges||stra,2,act3||</span> &rarr; Start with Gesture</li>
           <li><span class="motif-text">ges||stra,2,act3(lturn2)||</span> &rarr; Same time L Turn</li>
-          <li><span class="motif-text">ges||stra,2,act3(lturn2,ges2)||</span> &rarr; Guess!</li>
-          <li><span class="motif-text">ges||stra(turn),2,act3(lturn2,ges2)||</span> &rarr; Guess!</li>
+          <li><span class="motif-text">||stra,2,act3(lturn2,ges2)||</span> &rarr; Guess!</li>
+          <li><span class="motif-text">||stra(turn),2,act3(lturn2,ges2)||</span> &rarr; Guess!</li>
+          <li><span class="motif-text">||fre+str,qui+lig3||</span> &rarr; Guess!</li>
           <li>...Now try your own!</li>
         </ul>
         <h3>News</h3>
@@ -190,9 +209,9 @@
     <script src="js/jquery.js"></script>
     <script src="js/jquery.caret.js"></script>
     <script src="js/foundation.min.js"></script>
+    <script src="js/motifspeedwriter.defs.js"></script>
+    <script src="js/motifspeedwriter.draw.js"></script>
+    <script src="js/motifspeedwriter.main.js"></script>
     <script src="js/app.js"></script>
-    <script>
-      $(document).foundation();
-    </script>
   </body>
 </html>
