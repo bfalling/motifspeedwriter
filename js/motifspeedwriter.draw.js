@@ -179,9 +179,25 @@ var MotifSpeedWriter = (function(my, $) {
             leftMax = leftMax < -3.5 ? leftMax : -3.5;
             rightMax = rightMax > 3.5 ? rightMax : 3.5;
             break;
+          case 'fre':
+            gridLines.push([[-3.5, 0], [0, 0]]);
+            leftMax = leftMax < -3.5 ? leftMax : -3.5;
+            break;
+          case 'bou':
+            gridLines.push([[0, 0], [3.5, 0]]);
+            rightMax = rightMax > 3.5 ? rightMax : 3.5;
+            break;
           case 'wei':
             gridLines.push([[0, -3.5], [0, 3.5]]);
             topMax = topMax > 3.5 ? topMax : 3.5;
+            bottomMax = bottomMax < -3.5 ? bottomMax : -3.5;
+            break;
+          case 'lig':
+            gridLines.push([[0, 0], [0, 3.5]]);
+            topMax = topMax > 3.5 ? topMax : 3.5;
+            break;
+          case 'str':
+            gridLines.push([[0, -3.5], [0, 0]]);
             bottomMax = bottomMax < -3.5 ? bottomMax : -3.5;
             break;
           case 'tim':
@@ -191,10 +207,28 @@ var MotifSpeedWriter = (function(my, $) {
             rightMax = rightMax > 2.5 ? rightMax : 2.5;
             bottomMax = bottomMax < -1 ? bottomMax : -1;
             break;
+          case 'sus':
+            gridLines.push([[-2.5, -1.5], [-1, -1.5]]);
+            leftMax = leftMax < -2.5 ? leftMax : -2.5;
+            bottomMax = bottomMax < -1 ? bottomMax : -1;
+            break;
+          case 'qui':
+            gridLines.push([[1, -1.5], [2.5, -1.5]]);
+            rightMax = rightMax > 2.5 ? rightMax : 2.5;
+            bottomMax = bottomMax < -1 ? bottomMax : -1;
+            break;
           case 'spa':
             gridLines.push([[1.5, 1.5], [1.5, 4]]);
             gridLines.push([[1.5, 1.5], [4, 1.5]]);
             topMax = topMax > 4 ? topMax : 4;
+            rightMax = rightMax > 4 ? rightMax : 4;
+            break;
+          case 'ind':
+            gridLines.push([[1.5, 1.5], [1.5, 4]]);
+            topMax = topMax > 4 ? topMax : 4;
+            break;
+          case 'dir':
+            gridLines.push([[1.5, 1.5], [4, 1.5]]);
             rightMax = rightMax > 4 ? rightMax : 4;
             break;
         }
@@ -215,7 +249,7 @@ var MotifSpeedWriter = (function(my, $) {
         ]);
       });
       // Continuation
-      var force = (topMax - bottomMax < 6) ? true : false;
+      var force = (topMax - bottomMax < 5) ? true : false;
       drawContinuation(p('pby') - maxHeight - defs.termPadding, force);
 
     };
