@@ -342,11 +342,14 @@ var MotifSpeedWriter = (function() {
       });
     };
 
-    var drawContinuation = function() {
-      if (duration > 1) {
+    var drawContinuation = function(continuationStartY, force) {
+      if (continuationStartY === undefined) {
+        continuationStartY = startY - unitHeight;
+      };
+      if (duration > 1 || force === true) {
         drawPath([
-          { cmd: 'arc', params: [p('-nar2'), startY - unitHeight, continuationBowRadius, Math.PI / 2, Math.PI * 5 / 3] },
-          { cmd: 'line', params: [[midX, startY - unitHeight], [midX, p('pty')]] }
+          { cmd: 'arc', params: [p('-nar2'), continuationStartY, continuationBowRadius, Math.PI / 2, Math.PI * 5 / 3] },
+          { cmd: 'line', params: [[midX, continuationStartY], [midX, p('pty')]] }
         ]);
       }
     };
@@ -359,44 +362,60 @@ var MotifSpeedWriter = (function() {
 
     var drawEfforts = function(effortParts) {
 
-      // TODO: Remove once we've got spacing worked out
-      // Reference box
-      context.lineWidth = 1;
-      context.strokeStyle = '#ccc';
-      drawPath([
-        { cmd: 'line-7x7', params: [[0, 0], [0, 7], [7, 7], [7, 0], [0, 0]] }
-      ]);
-      context.lineWidth = thickness;
-      context.strokeStyle = 'black';
-      
-      drawPath([
-        { cmd: 'line-7x7', params: [[3, 3], [4.5, 4.5]] }
-      ]);
+      // Determine grid lines and also assess max dimensions needed
+      var gridLines = [
+        [[0, 0], [1.5, 1.5]]
+      ];
+      var leftMax = 0;
+      var rightMax = 1.5;
+      var topMax = 1.5;
+      var bottomMax = 0;
       $.each(effortParts, function(i, effortPart) {
         switch (effortPart) {
           case 'flo':
-            drawPath([
-              { cmd: 'line-7x7', params: [[0, 3], [6, 3]] }
-            ]);
+            gridLines.push([[-3.5, 0], [3.5, 0]]);
+            leftMax = leftMax < -3.5 ? leftMax : -3.5;
+            rightMax = rightMax > 3.5 ? rightMax : 3.5;
             break;
           case 'wei':
-            drawPath([
-              { cmd: 'line-7x7', params: [[3, 0], [3, 6]] }
-            ]);
+            gridLines.push([[0, -3.5], [0, 3.5]]);
+            topMax = topMax > 3.5 ? topMax : 3.5;
+            bottomMax = bottomMax < -3.5 ? bottomMax : -3.5;
             break;
           case 'tim':
-            drawPath([
-              { cmd: 'line-7x7', params: [[1, 1.5], [2, 1.5]] },
-              { cmd: 'line-7x7', params: [[4, 1.5], [5, 1.5]] }
-            ]);
+            gridLines.push([[-2.5, -1.5], [-1, -1.5]]);
+            gridLines.push([[1, -1.5], [2.5, -1.5]]);
+            leftMax = leftMax < -2.5 ? leftMax : -2.5;
+            rightMax = rightMax > 2.5 ? rightMax : 2.5;
+            bottomMax = bottomMax < -1 ? bottomMax : -1;
             break;
           case 'spa':
-            drawPath([
-              { cmd: 'line-7x7', params: [[4.5, 7], [4.5, 4.5], [7,4.5]] }
-            ]);
+            gridLines.push([[1.5, 1.5], [1.5, 4]]);
+            gridLines.push([[1.5, 1.5], [4, 1.5]]);
+            topMax = topMax > 4 ? topMax : 4;
+            rightMax = rightMax > 4 ? rightMax : 4;
             break;
         }
       });
+
+      var gridUnit = (unitWidth - 2 * termPadding) / 7;
+      var maxHeight = (topMax - bottomMax) * gridUnit;
+      var maxWidth = (rightMax - leftMax) * gridUnit;
+      var leftEdge = midX - maxWidth / 2;
+      var effortOriginX = leftEdge - leftMax * gridUnit;
+      var effortOriginY = p('pby') + bottomMax * gridUnit;
+      $.each(gridLines, function(i, gridLine) {
+        var startPoint = gridLine[0];
+        var endPoint = gridLine[1];
+        drawPath([
+          { cmd: 'line', params: [[effortOriginX + startPoint[0] * gridUnit, effortOriginY - startPoint[1] * gridUnit],
+                                  [effortOriginX + endPoint[0] * gridUnit, effortOriginY - endPoint[1] * gridUnit]] }
+        ]);
+      });
+      // Continuation
+      var force = (topMax - bottomMax < 6) ? true : false;
+      drawContinuation(p('pby') - maxHeight - termPadding, force);
+
     };
 
     // Parse combo terms
@@ -637,7 +656,6 @@ var MotifSpeedWriter = (function() {
         break;
       case 'effort':
         drawEfforts(termParams);
-        drawContinuation();
         break;
       default:
         break;
