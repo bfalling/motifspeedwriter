@@ -1,4 +1,7 @@
+var jQuery = jQuery || {};
+
 var MotifSpeedWriter = (function(my, $) {
+  'use strict';
 
   my.drawTerm = function(termCode, duration, midX, startY, defs) {
     var canvas = $('#motif-canvas')[0];
@@ -60,7 +63,7 @@ var MotifSpeedWriter = (function(my, $) {
                 context.lineTo(point[0], point[1]);
               });
               context.stroke();
-            };
+            }
             break;
           case 'line-close':
             if (params.length > 1) {
@@ -72,7 +75,7 @@ var MotifSpeedWriter = (function(my, $) {
               });
               context.closePath();
               context.stroke();
-            };
+            }
             break;
           case 'line-7x7':
             if (params.length > 1) {
@@ -83,7 +86,7 @@ var MotifSpeedWriter = (function(my, $) {
                 context.lineTo(gridX(point[0]), gridY(point[1]));
               });
               context.stroke();
-            };
+            }
             break;
           case 'circle':
             context.beginPath();
@@ -119,7 +122,6 @@ var MotifSpeedWriter = (function(my, $) {
             var eightCenterY = params[1];
             var eightWidth = params[2];
             var eightHeight = params[3];
-            var eightLeft
             context.beginPath();
             context.moveTo(eightCenterX, eightCenterY - eightHeight / 2);
             context.bezierCurveTo(eightCenterX - eightWidth / 2, eightCenterY - eightHeight / 2,
@@ -145,7 +147,7 @@ var MotifSpeedWriter = (function(my, $) {
     var drawContinuation = function(continuationStartY, force) {
       if (continuationStartY === undefined) {
         continuationStartY = startY - defs.unitSize;
-      };
+      }
       if (duration > 1 || force === true) {
         drawPath([
           { cmd: 'arc', params: [p('-nar2'), continuationStartY, defs.continuationBowRadius, Math.PI / 2, Math.PI * 5 / 3] },
@@ -228,7 +230,7 @@ var MotifSpeedWriter = (function(my, $) {
     }
     if ($.inArray(termCode, defs.efforts) > -1) {
       termCode = 'effort';
-    };
+    }
 
     switch (termCode) {
       case 'box':
@@ -392,9 +394,9 @@ var MotifSpeedWriter = (function(my, $) {
         ]);
         context.beginPath();
         context.moveTo(midX - defs.termPadding, p('pby') - airLaunchLandLength);
-        context.quadraticCurveTo(midX - p('nar') * .8, p('cdy'), midX - defs.termPadding, p('pty') + airLaunchLandLength);
+        context.quadraticCurveTo(midX - p('nar') * 0.8, p('cdy'), midX - defs.termPadding, p('pty') + airLaunchLandLength);
         context.moveTo(midX + defs.termPadding, p('pby') - airLaunchLandLength);
-        context.quadraticCurveTo(midX + p('nar') * .8, p('cdy'), midX + defs.termPadding, p('pty') + airLaunchLandLength);
+        context.quadraticCurveTo(midX + p('nar') * 0.8, p('cdy'), midX + defs.termPadding, p('pty') + airLaunchLandLength);
         context.stroke();
         break;
       case 'breath':

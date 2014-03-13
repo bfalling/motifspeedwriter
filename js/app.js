@@ -1,6 +1,10 @@
+var MotifSpeedWriter = MotifSpeedWriter || {};
+var jQuery = jQuery || {};
+
 jQuery.noConflict();
 
 (function($) {
+  'use strict';
 
   $(document).ready(function() {
     $('#motif-text-clear-button').click(function(event) {
@@ -27,7 +31,7 @@ jQuery.noConflict();
         $this.caret(cursorPos);
         if ($this.val().charAt(cursorPos) !== '|') {
           $this.caret(' ');
-        };
+        }
       } else if (event.which === 57) {
         // Left paren auto-adds right paren
         $this.caret(')');

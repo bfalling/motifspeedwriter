@@ -1,4 +1,7 @@
+var jQuery = jQuery || {};
+
 var MotifSpeedWriter = (function(my, $) {
+  'use strict';
 
   my.defs = {
     devicePixelRatio: window.devicePixelRatio,

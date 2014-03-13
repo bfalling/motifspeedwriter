@@ -1,5 +1,11 @@
-var MotifSpeedWriter = (function(my, $) {
+var jQuery = jQuery || {};
 
+var MotifSpeedWriter = (function(my, $) {
+  'use strict';
+
+  var numColumns;
+  var columnAvailableUnits;
+  
   my.describeSequence = function(sequence) {
     var description = '';
     $.each(sequence, function(i, term) {
@@ -14,7 +20,7 @@ var MotifSpeedWriter = (function(my, $) {
   my.parseSequence = function(sequenceText) {
     if (sequenceText === '') {
       return [];
-    };
+    }
     // Split on top-level commas, and parse any inner groups
     var depth = 0;
     var terms = [];
@@ -89,7 +95,7 @@ var MotifSpeedWriter = (function(my, $) {
       subsequences.push(this.parseSequence(subsequenceInProgress));
     }
 
-    var simpleTermRegexp = /(\D*)(\d.*)?/i
+    var simpleTermRegexp = /(\D*)(\d.*)?/i;
     var match = simpleTermRegexp.exec(simpleTermInProgress);
 
     return {
@@ -115,7 +121,7 @@ var MotifSpeedWriter = (function(my, $) {
         columnAvailableUnits[i] = startUnit + sequence.duration;
         break;
       }
-    };
+    }
     if (sequence.column === undefined) {
       sequence.column = numColumns;
       columnAvailableUnits[numColumns] = startUnit + sequence.duration;
@@ -251,8 +257,8 @@ var MotifSpeedWriter = (function(my, $) {
 
     var maxNumColumns = Math.max(preSequenceNumColumns, mainSequenceNumColumns);
     var totalCanvasWidth = maxNumColumns * this.defs.unitSize + 2 * this.defs.edgePadding;
-    var totalCanvasHeight = (maxPreSequenceDuration + maxMainSequenceDuration) * this.defs.unitSize
-                            + (showMotifStaff ? 2 * this.defs.staffLineHeight : 0) + 2 * this.defs.edgePadding;
+    var totalCanvasHeight = (maxPreSequenceDuration + maxMainSequenceDuration) * this.defs.unitSize +
+                            (showMotifStaff ? 2 * this.defs.staffLineHeight : 0) + 2 * this.defs.edgePadding;
 
     $('#motif-canvas').attr('width', totalCanvasWidth * this.defs.devicePixelRatio).attr('height', totalCanvasHeight * this.defs.devicePixelRatio)
                       .width(totalCanvasWidth).height(totalCanvasHeight);
@@ -269,7 +275,7 @@ var MotifSpeedWriter = (function(my, $) {
       currentY += maxPreSequenceDuration * this.defs.unitSize;
       this.drawStaff(maxNumColumns, midX, totalCanvasHeight - currentY);
       currentY += this.defs.staffLineHeight;
-    };
+    }
 
     this.drawSequence(mainSequence, midX - (mainSequenceNumColumns % 2 === 0 ? this.defs.unitSize / 2 : 0), currentY);
     currentY += maxMainSequenceDuration * this.defs.unitSize;
@@ -277,7 +283,7 @@ var MotifSpeedWriter = (function(my, $) {
     if (showMotifStaff) {
       this.drawStaff(maxNumColumns, midX, totalCanvasHeight - currentY);
       currentY += this.defs.staffLineHeight;
-    };
+    }
 
     // Generate image
     var canvasDataURL = $('#motif-canvas')[0].toDataURL('image/png');
