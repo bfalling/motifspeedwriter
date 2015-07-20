@@ -40,6 +40,7 @@ var MotifSpeedWriter = (function(myPublic, $) {
   my.drawTerm = function(term, midX, startY, defs) {
     my.termCode = term.code;
     my.duration = term.duration;
+    my.termParts = term.parts;
     my.midX = midX;
     my.startY = startY;
     my.defs = defs;
@@ -50,8 +51,6 @@ var MotifSpeedWriter = (function(myPublic, $) {
     my.context.scale(my.defs.devicePixelRatio, my.defs.devicePixelRatio);
     my.context.lineWidth = my.defs.mainMotifThickness;
     my.context.strokeStyle = 'black';
-
-    my.parseComboTermParts();
 
     switch (my.termCode) {
       case 'box':
@@ -268,7 +267,7 @@ var MotifSpeedWriter = (function(myPublic, $) {
         ]);
         break;
       case 'effort':
-        my.drawEfforts(my.termParams);
+        my.drawEfforts(my.termParts);
         break;
       default:
         break;
@@ -277,19 +276,6 @@ var MotifSpeedWriter = (function(myPublic, $) {
     // TODO: Refactor this to finishCanvasContext
     my.context.scale(1.0 / my.defs.devicePixelRatio, 1.0 / my.defs.devicePixelRatio);
   }; // drawTerm
-
-    // Parse any combo terms (for now, just Efforts)
-  my.parseComboTermParts = function() {
-    if (my.termCode.indexOf('+') > -1) {
-      my.termParams = my.termCode.split('+');
-      my.termCode = my.termParams[0];
-    } else {
-      my.termParams = [my.termCode];
-    }
-    if ($.inArray(my.termCode, my.defs.efforts) > -1) {
-      my.termCode = 'effort';
-    }
-  };
 
   // Position helpers
   // NOTE: Origin at lower left

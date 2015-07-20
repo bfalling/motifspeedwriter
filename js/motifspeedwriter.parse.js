@@ -92,13 +92,30 @@ var MotifSpeedWriter = (function(myPublic, $) {
     var match = simpleTermRegexp.exec(simpleTermInProgress);
     var termCode = match[1] ? match[1].toLowerCase() : 'nop';
     var termDuration = match[2] ? parseFloat(match[2]) : 1;
+    var termCodeAndParts = my.parseComboTermParts(termCode);
 
     return {
-      code: termCode,
+      code: termCodeAndParts.code,
+      parts: termCodeAndParts.parts,
       duration: termDuration,
       subsequences: subsequences
     };
   }; // parseTerm
+
+  // Parse any combo terms (for now, just Efforts)
+  my.parseComboTermParts = function(termCode) {
+    var termParts;
+    if (termCode.indexOf('+') > -1) {
+      termParts = termCode.split('+');
+      termCode = termParts[0];
+    } else {
+      termParts = [termCode];
+    }
+    if ($.inArray(termCode, myPublic.defs.efforts) > -1) {
+      termCode = 'effort';
+    }
+    return { code: termCode, parts: termParts };
+  };
 
   // Useful for debugging
   my.describeSequence = function(sequence) {
