@@ -5,7 +5,7 @@ var MotifSpeedWriter = (function(myPublic, $) {
 
   var my = {};
 
-  // Parse a sequence of terms
+  // PUBLIC: Parse a sequence of terms
   my.parseSequence = function(sequenceText) {
     if (sequenceText === '') {
       return [];

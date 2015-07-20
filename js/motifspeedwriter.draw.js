@@ -36,7 +36,7 @@ var MotifSpeedWriter = (function(myPublic, $) {
     }
   };
 
-  // Execute the needed drawing instructions for a single term (BIG!)
+  // PUBLIC: Execute the needed drawing instructions for a single term (BIG!)
   my.drawTerm = function(termCode, duration, midX, startY, defs) {
     my.duration = duration;
     my.midX = midX;
