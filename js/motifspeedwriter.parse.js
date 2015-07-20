@@ -1,5 +1,9 @@
-var MotifSpeedWriter = (function(my) {
+var jQuery = jQuery || {};
+
+var MotifSpeedWriter = (function(myPublic, $) {
   'use strict';
+
+  var my = {};
 
   // Useful for debugging
   my.describeSequence = function(sequence) {
@@ -7,11 +11,11 @@ var MotifSpeedWriter = (function(my) {
     $.each(sequence, function(i, term) {
       description += term.code + '-' + term.duration + ' ';
       $.each(term.subsequences, function(i, subsequence) {
-        description += '[' + this.describeSequence(subsequence) + '] ';
-      }.bind(this));
-    }.bind(this));
+        description += '[' + my.describeSequence(subsequence) + '] ';
+      });
+    });
     return description;
-  }; // describeSequence
+  };
 
   my.parseSequence = function(sequenceText) {
     if (sequenceText === '') {
@@ -26,7 +30,7 @@ var MotifSpeedWriter = (function(my) {
       switch(charToProcess) {
         case ',':
           if (depth === 0) {
-            terms.push(this.parseTerm(termInProgress));
+            terms.push(my.parseTerm(termInProgress));
             termInProgress = '';
           } else {
             termInProgress += charToProcess;
@@ -45,7 +49,7 @@ var MotifSpeedWriter = (function(my) {
           break;
       }
     }
-    terms.push(this.parseTerm(termInProgress));
+    terms.push(my.parseTerm(termInProgress));
     return terms;
   }; // parseSequence
 
@@ -70,7 +74,7 @@ var MotifSpeedWriter = (function(my) {
         case ')':
           depth--;
           if (depth === 0) {
-            subsequences.push(this.parseSequence(subsequenceInProgress));
+            subsequences.push(my.parseSequence(subsequenceInProgress));
           } else if (depth < 0) {
             console.log('Encountered extra right paren -- ignoring');
           } else {
@@ -88,7 +92,7 @@ var MotifSpeedWriter = (function(my) {
     }
 
     if (depth > 0) {
-      subsequences.push(this.parseSequence(subsequenceInProgress));
+      subsequences.push(my.parseSequence(subsequenceInProgress));
     }
 
     var simpleTermRegexp = /(\D*)(\d.*)?/i;
@@ -101,6 +105,9 @@ var MotifSpeedWriter = (function(my) {
     };
   }; // parseTerm
 
-  return my;
+  myPublic.describeSequence = my.describeSequence;
+  myPublic.parseSequence = my.parseSequence;
 
-})(MotifSpeedWriter || {});
+  return myPublic;
+
+})(MotifSpeedWriter || {}, jQuery);
