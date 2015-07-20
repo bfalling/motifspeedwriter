@@ -23,8 +23,10 @@ jQuery.noConflict();
       var cursorPos = $this.caret();
       var numDoubleBars = (val.match(/\|\|/g) || []).length;
       var posDoubleBar = val.indexOf('||');
+      var verticalBarAscii = 220;
+      var leftParenAscii = 57;
       // If entered the second bar of two-bar series and there are no other double bars in the text
-      if (event.which === 220 && numDoubleBars === 1 && (cursorPos === posDoubleBar + 1 || cursorPos === posDoubleBar + 2)) {
+      if (event.which === verticalBarAscii && numDoubleBars === 1 && (cursorPos === posDoubleBar + 1 || cursorPos === posDoubleBar + 2)) {
         // Only add one bar if for some reason there's a solo bar at the end
         var stringToAdd = (posDoubleBar != val.length - 2 && val.charAt(val.length - 1) === '|') ? '|' : ' ||';
         $this.val($this.val() + stringToAdd);
@@ -32,8 +34,8 @@ jQuery.noConflict();
         if ($this.val().charAt(cursorPos) !== '|') {
           $this.caret(' ');
         }
-      } else if (event.which === 57) {
-        // Left paren auto-adds right paren
+      // Else if entered left paren, then auto-add right paren
+      } else if (event.which === leftParenAscii) {
         $this.caret(')');
         $this.caret(cursorPos);
       }
