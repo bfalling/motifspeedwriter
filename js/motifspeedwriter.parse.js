@@ -5,6 +5,101 @@ var MotifSpeedWriter = (function(myPublic, $) {
 
   var my = {};
 
+  // Parse a sequence of terms
+  my.parseSequence = function(sequenceText) {
+    if (sequenceText === '') {
+      return [];
+    }
+    var depth = 0;
+    var terms = [];
+    var termInProgress = '';
+    var processChar = function(aChar) {
+      switch(aChar) {
+        case ',':
+          if (depth === 0) {
+            terms.push(my.parseTerm(termInProgress));
+            termInProgress = '';
+          } else {
+            termInProgress += aChar;
+          }
+          break;
+        case '(':
+          depth++;
+          termInProgress += aChar;
+          break;
+        case ')':
+          depth--;
+          termInProgress += aChar;
+          break;
+        default:
+          termInProgress += aChar;
+          break;
+      }
+    };
+    for (var i = 0, len = sequenceText.length; i < len; i++) {
+      processChar(sequenceText.charAt(i));
+    }
+    terms.push(my.parseTerm(termInProgress)); // Handle any remaining
+    return terms;
+  };
+
+  // Parse one term, handling any attached, simultaneous subsequences
+  my.parseTerm = function(termText) {
+    var depth = 0;
+    var subsequences = [];
+    var subsequenceInProgress = '';
+    var simpleTermInProgress = '';
+    var processTermChar = function(aChar) {
+      switch(aChar) {
+        case '(':
+          depth++;
+          if (depth === 1) {
+            subsequenceInProgress = '';
+          } else {
+            subsequenceInProgress += aChar;
+          }
+          break;
+        case ')':
+          depth--;
+          if (depth === 0) {
+            subsequences.push(my.parseSequence(subsequenceInProgress));
+          } else if (depth < 0) {
+            console.log('Encountered extra right paren -- ignoring');
+          } else {
+            subsequenceInProgress += aChar;
+          }
+          break;
+        default:
+          if (depth === 0) {
+            simpleTermInProgress += aChar;
+          } else {
+            subsequenceInProgress += aChar;
+          }
+          break;
+      }
+    };
+
+    for (var i = 0, len = termText.length; i < len; i++) {
+      processTermChar(termText.charAt(i));
+    }
+
+    // Handle any remaining, unclosed subsequence
+    if (depth > 0) {
+      subsequences.push(my.parseSequence(subsequenceInProgress));
+    }
+
+    var simpleTermRegexp = /(\D*)(\d.*)?/i; // Non-numbers followed by numbers
+    var match = simpleTermRegexp.exec(simpleTermInProgress);
+    var termCode = match[1] ? match[1].toLowerCase() : 'nop';
+    var termDuration = match[2] ? parseFloat(match[2]) : 1;
+
+    return {
+      code: termCode,
+      duration: termDuration,
+      subsequences: subsequences
+    };
+  }; // parseTerm
+
   // Useful for debugging
   my.describeSequence = function(sequence) {
     var description = '';
@@ -17,94 +112,7 @@ var MotifSpeedWriter = (function(myPublic, $) {
     return description;
   };
 
-  my.parseSequence = function(sequenceText) {
-    if (sequenceText === '') {
-      return [];
-    }
-    // Split on top-level commas, and parse any inner groups
-    var depth = 0;
-    var terms = [];
-    var termInProgress = '';
-    for (var i = 0, len = sequenceText.length; i < len; i++) {
-      var charToProcess = sequenceText.charAt(i);
-      switch(charToProcess) {
-        case ',':
-          if (depth === 0) {
-            terms.push(my.parseTerm(termInProgress));
-            termInProgress = '';
-          } else {
-            termInProgress += charToProcess;
-          }
-          break;
-        case '(':
-          depth++;
-          termInProgress += charToProcess;
-          break;
-        case ')':
-          depth--;
-          termInProgress += charToProcess;
-          break;
-        default:
-          termInProgress += charToProcess;
-          break;
-      }
-    }
-    terms.push(my.parseTerm(termInProgress));
-    return terms;
-  }; // parseSequence
-
-  my.parseTerm = function(termText) {
-    // Separate actual term from simultaneous sequences
-    var depth = 0;
-    var subsequences = [];
-    var subsequenceInProgress = '';
-    var simpleTermInProgress = '';
-
-    for (var i = 0, len = termText.length; i < len; i++) {
-      var charToProcess = termText.charAt(i);
-      switch(charToProcess) {
-        case '(':
-          depth++;
-          if (depth === 1) {
-            subsequenceInProgress = '';
-          } else {
-            subsequenceInProgress += charToProcess;
-          }
-          break;
-        case ')':
-          depth--;
-          if (depth === 0) {
-            subsequences.push(my.parseSequence(subsequenceInProgress));
-          } else if (depth < 0) {
-            console.log('Encountered extra right paren -- ignoring');
-          } else {
-            subsequenceInProgress += charToProcess;
-          }
-          break;
-        default:
-          if (depth === 0) {
-            simpleTermInProgress += charToProcess;
-          } else {
-            subsequenceInProgress += charToProcess;
-          }
-          break;
-      }
-    }
-
-    if (depth > 0) {
-      subsequences.push(my.parseSequence(subsequenceInProgress));
-    }
-
-    var simpleTermRegexp = /(\D*)(\d.*)?/i;
-    var match = simpleTermRegexp.exec(simpleTermInProgress);
-
-    return {
-      code: match[1] ? match[1].toLowerCase() : 'nop',
-      duration: match[2] ? parseFloat(match[2]) : 1,
-      subsequences: subsequences
-    };
-  }; // parseTerm
-
+  // Public API
   myPublic.describeSequence = my.describeSequence;
   myPublic.parseSequence = my.parseSequence;
 
