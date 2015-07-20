@@ -9,15 +9,15 @@
     <script src="js/modernizr.js"></script>
     <script type="text/javascript">
 
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-33031756-1']);
-  _gaq.push(['_trackPageview']);
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-33031756-1']);
+    _gaq.push(['_trackPageview']);
 
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
 
     </script>
   </head>
@@ -150,7 +150,7 @@
     <div class="row">
       <div id="footer" class="small-12 columns text-center">
         <p>
-          &copy; 2014 Brenton Cheng | Another <a href="http://www.labanlabs.org">Laban Labs</a> project
+          &copy; 2015 Brenton Cheng | Another <a href="http://www.labanlabs.org" target="_blank">Laban Labs</a> project
           <br>
           Modern browser required
         </p>
@@ -167,10 +167,10 @@
 
     <div id="about-modal" class="reveal-modal" data-reveal>
       <h3>About this project</h3>
-      <p>This project is an exploration of just how quickly and easily we can create Motif graphics. It began with musing about whether it might be possible to create a horizontal Motif text format using only the letters, numbers, and symbols found on a laptop keyboard. This Motif Text Notation, while obviously lacking the beauty and universality of symbolic Motif Notation, would be fast to input and might at least suffice in enough situations as to be worth developing.</p>
+      <p>This project is an exploration of just how quickly and easily we can create <a href="http://www.lodc.org/about-us/what-is-language-of-dance/motif-notation.html" target="_blank">Motif Notation</a> graphics. It began with musing about whether it might be possible to create a horizontal Motif text format using only the letters, numbers, and symbols found on a laptop keyboard. This Motif Text Notation, while obviously lacking the beauty and universality of symbolic <a href="http://www.lodc.org/about-us/what-is-language-of-dance/motif-notation.html" target="_blank">Motif Notation</a>, would be fast to input and might at least suffice in enough situations as to be worth developing.</p>
       <p>But if one could enter simple Motifs purely from the keyboard, then those Motifs should be easily parsable by a computer program and turned into graphical Motifs on the page, which could then be downloaded.</p>
       <p>And so this project was born.</p>
-      <p>Try it out, entering text modeled after the examples, and see what you think. At the moment, only a handful of terms are available, but hopefully enough to get a feel for it. It may seem blasphemous to use letters and numbers instead of the rich symbology of Motif Notation, and certainly this current experiment is based on English-language Laban terms. But my hope is that it will inspire us to get curious about how we might approach old challenges in new ways, as we continue to promote movement literacy to the masses.</p>
+      <p>Try it out, entering text modeled after the examples, and see what you think. At the moment, only a handful of terms are available, but hopefully enough to get a feel for it. It may seem blasphemous to use letters and numbers instead of the rich symbology of <a href="http://www.lodc.org/about-us/what-is-language-of-dance/motif-notation.html" target="_blank">Motif Notation</a>, and certainly this current experiment is based on English-language Laban terms. But my hope is that it will inspire us to get curious about how we might approach old challenges in new ways, as we continue to promote movement literacy to the masses.</p>
       <p>Feel free to use the generated Motif images wherever and however you want. If you remove the small watermark at the bottom, please provide attribution or a link back to this site in some other way. Enjoy!</p>
       <p>&mdash;Brenton</p>
       <p>
@@ -192,7 +192,7 @@
               ltr = coded.charAt(i)
               link += (ltr)
             }
-            else {     
+            else {
               ltr = (key.indexOf(coded.charAt(i))-shift+key.length) % key.length
               link += (key.charAt(ltr))
             }
