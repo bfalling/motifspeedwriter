@@ -3,8 +3,36 @@ var jQuery = jQuery || {};
 var MotifSpeedWriter = (function(my, $) {
   'use strict';
 
+  // Parse full Motif, including staff
+  my.parseMotif = function(motifText) {
+    var cleanMotifText = motifText.replace(/\s/g, '');
+    if (cleanMotifText === '') {
+      return {
+        showMotifStaff: false,
+        preSequence: [],
+        mainSequence: []
+      };
+    }
+
+    var motifWithStaffRegexp = /([^\|]*)\|\|([^\|]*)\|\|/;
+    var match = motifWithStaffRegexp.exec(cleanMotifText);
+    if (match !== null) {
+      return {
+        showMotifStaff: true,
+        preSequence: parseSequence(match[1]),
+        mainSequence: parseSequence(match[2])
+      };
+    } else {
+      return {
+        showMotifStaff: false,
+        preSequence: [],
+        mainSequence: parseSequence(cleanMotifText)
+      };
+    }
+  };
+
   // Parse a series of terms from a text string
-  my.parseSequence = function(sequenceText) {
+  var parseSequence = function(sequenceText) {
     if (sequenceText === '') {
       return [];
     }
@@ -60,7 +88,7 @@ var MotifSpeedWriter = (function(my, $) {
         case ')':
           depth--;
           if (depth === 0) {
-            subsequences.push(my.parseSequence(subsequenceInProgress));
+            subsequences.push(parseSequence(subsequenceInProgress));
           } else if (depth < 0) {
             console.log('Encountered extra right paren -- ignoring');
           } else {
@@ -81,7 +109,7 @@ var MotifSpeedWriter = (function(my, $) {
     }
     // Handle any remaining, unclosed subsequence
     if (depth > 0) {
-      subsequences.push(my.parseSequence(subsequenceInProgress));
+      subsequences.push(parseSequence(subsequenceInProgress));
     }
 
     var canonicalTerm = parseCanonicalTerm(simpleTermInProgress);

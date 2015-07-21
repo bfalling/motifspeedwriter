@@ -118,25 +118,12 @@ var MotifSpeedWriter = (function(my, $) {
       lastMotifText = motifText;
     }
 
-    var cleanMotifText = motifText.replace(/\s/g, '');
+    var parsedMotif = my.parseMotif(motifText);
 
-    var preSequence = [];
-    var mainSequence = [];
-    var motifWithStaffRegexp = /([^\|]*)\|\|([^\|]*)\|\|/;
-    var match = motifWithStaffRegexp.exec(cleanMotifText);
-    var showMotifStaff;
-    if (match !== null) {
-      showMotifStaff = true;
-      preSequence = this.parseSequence(match[1]);
-      mainSequence = this.parseSequence(match[2]);
-    } else {
-      showMotifStaff = false;
-      mainSequence = this.parseSequence(cleanMotifText);
-    }
-
-    // DBG
-    //console.log('PreSequence: ' + this.describeSequence(preSequence));
-    //console.log('MainSequence: ' + this.describeSequence(mainSequence));
+    // TODO: Remove: For compatibility
+    var showMotifStaff = parsedMotif.showMotifStaff;
+    var preSequence = parsedMotif.preSequence;
+    var mainSequence = parsedMotif.mainSequence;
 
     // NOTE: Removing old canvas and creating a new one elminates border artifacts left when resizing on Safari
     $('#motif-canvas').remove();
