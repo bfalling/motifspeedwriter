@@ -64,7 +64,7 @@ var MotifSpeedWriter = (function(my, $) {
     var columnX = midX + columnUnitShift * this.defs.unitSize;
     var currentY = startY + sequence.startUnit * this.defs.unitSize;
     $.each(sequence, function(i, term) {
-      this.drawTerm(term, columnX, totalCanvasHeight - currentY, this.defs);
+      this.drawTerm(term, columnX, totalCanvasHeight - currentY);
       currentY += term.duration * this.defs.unitSize;
       $.each(term.subsequences, function(i, subsequence) {
         this.drawSequence(subsequence, midX, startY);
