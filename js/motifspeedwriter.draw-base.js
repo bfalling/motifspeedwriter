@@ -1,11 +1,5 @@
 var jQuery = jQuery || {};
 
-// TODO:
-// Update Foundation
-// Clean up this file
-// Add check for mouse-pasted text
-
-
 var MotifSpeedWriter = (function(my, $) {
   'use strict';
 
@@ -19,31 +13,25 @@ var MotifSpeedWriter = (function(my, $) {
   }
 
   my.drawMotif = function(parsedMotif) {
-    var showMotifStaff = parsedMotif.showMotifStaff;
-    var preSequence = parsedMotif.preSequence;
-    var mainSequence = parsedMotif.mainSequence;
-
+    var shouldShowMotifStaff = parsedMotif.showMotifStaff;
     var layout = layoutMotif(parsedMotif);
 
-    my.motifCanvas.attr('width', layout.width * my.defs.devicePixelRatio)
-                  .attr('height', layout.height * my.defs.devicePixelRatio);
-
-    drawInitial();
+    prepareCanvas(layout.width, layout.height);
 
     var midX = layout.width / 2;
     var currentY = my.defs.edgePadding;
 
-    if (showMotifStaff) {
-      drawSequence(preSequence, midX - (layout.preSequenceNumColumns % 2 === 0 ? my.defs.unitSize / 2 : 0), currentY);
+    if (shouldShowMotifStaff) {
+      drawSequence(parsedMotif.preSequence, midX - (layout.preSequenceNumColumns % 2 === 0 ? my.defs.unitSize / 2 : 0), currentY);
       currentY += layout.preSequenceMaxDuration * my.defs.unitSize;
       drawStaff(layout.maxNumColumns, midX, layout.height - currentY);
       currentY += my.defs.staffLineHeight;
     }
 
-    drawSequence(mainSequence, midX - (layout.mainSequenceNumColumns % 2 === 0 ? my.defs.unitSize / 2 : 0), currentY);
+    drawSequence(parsedMotif.mainSequence, midX - (layout.mainSequenceNumColumns % 2 === 0 ? my.defs.unitSize / 2 : 0), currentY);
     currentY += layout.mainSequenceMaxDuration * my.defs.unitSize;
 
-    if (showMotifStaff) {
+    if (shouldShowMotifStaff) {
       drawStaff(layout.maxNumColumns, midX, layout.height - currentY);
       currentY += my.defs.staffLineHeight;
     }
@@ -114,20 +102,23 @@ var MotifSpeedWriter = (function(my, $) {
     };
   }
 
-  var drawInitial = function() {
+  var prepareCanvas = function(width, height) {
+    my.motifCanvas.attr('width', width * my.defs.devicePixelRatio)
+                  .attr('height', height * my.defs.devicePixelRatio);
+
     my.prepareCanvasContext();
 
     // Sometimes helps with clearing artifacts
-    my.context.clearRect(0, 0, my.motifCanvas.width, my.motifCanvas.height);
+    my.context.clearRect(0, 0, width, height);
 
     my.context.fillStyle = 'white';
-    my.context.fillRect(0, 0, my.motifCanvas.width, my.motifCanvas.height);
+    my.context.fillRect(0, 0, width, height);
 
     my.context.font = '0.1rem arial,sans-serif';
     my.context.textAlign = 'center';
     my.context.textBaseline = 'bottom';
     my.context.fillStyle = '#aaa';
-    my.context.fillText('Motif SpeedWriter', my.motifCanvas.width / 2, my.motifCanvas.height);
+    my.context.fillText('Motif SpeedWriter', width / 2, height);
 
     my.finishCanvasContext();
   };
