@@ -3,9 +3,6 @@ var jQuery = jQuery || {};
 var MotifSpeedWriter = (function(my, $) {
   'use strict';
 
-  var numColumns;
-  var columnAvailableUnits;
-
   my.prepareCanvasContext = function() {
     var canvas = $('#motif-canvas')[0];
     my.context = canvas.getContext('2d');
@@ -36,7 +33,7 @@ var MotifSpeedWriter = (function(my, $) {
 
   var layoutMotifPart = function(partSequence) {
     var numColumns = 0;
-    var columnAvailableUnits = [];
+    var freePositionForColumn = [];
     var layoutSequence = function(sequence, startUnit) {
       sequence.startUnit = startUnit;
 
@@ -48,15 +45,15 @@ var MotifSpeedWriter = (function(my, $) {
 
       // Determine first available free column, or create new one
       for (var i = 0; i < numColumns; i++) {
-        if (columnAvailableUnits[i] <= startUnit) {
+        if (freePositionForColumn[i] <= startUnit) {
           sequence.column = i;
-          columnAvailableUnits[i] = startUnit + sequence.duration;
+          freePositionForColumn[i] = startUnit + sequence.duration;
           break;
         }
       }
       if (sequence.column === undefined) {
         sequence.column = numColumns;
-        columnAvailableUnits[numColumns] = startUnit + sequence.duration;
+        freePositionForColumn[numColumns] = startUnit + sequence.duration;
         numColumns++;
       }
 
@@ -72,7 +69,7 @@ var MotifSpeedWriter = (function(my, $) {
 
     layoutSequence(partSequence, 0);
     var maxDuration = 0;
-    $.each(columnAvailableUnits, function(i, unit) {
+    $.each(freePositionForColumn, function(i, unit) {
       maxDuration = Math.max(maxDuration, unit);
     });
     return {
