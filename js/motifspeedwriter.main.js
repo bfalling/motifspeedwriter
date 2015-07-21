@@ -6,6 +6,16 @@ var MotifSpeedWriter = (function(my, $) {
   var numColumns;
   var columnAvailableUnits;
 
+  my.prepareCanvasContext = function() {
+    var canvas = $('#motif-canvas')[0];
+    my.context = canvas.getContext('2d');
+    my.context.scale(my.defs.devicePixelRatio, my.defs.devicePixelRatio);
+  }
+
+  my.finishCanvasContext = function() {
+    my.context.scale(1.0 / my.defs.devicePixelRatio, 1.0 / my.defs.devicePixelRatio);
+  }
+
   my.layoutSequence = function(sequence, startUnit) {
     sequence.startUnit = startUnit;
 

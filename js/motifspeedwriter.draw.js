@@ -5,16 +5,14 @@ var MotifSpeedWriter = (function(my, $) {
 
   var term, midX, startY;
 
-  // PUBLIC: Execute the needed drawing instructions for a single term (BIG!)
+  // Drawing instructions for every term (BIG!)
   my.drawTerm = function(theTerm, theMidX, theStartY) {
     term = theTerm;
     midX = theMidX;
     startY = theStartY;
 
-    // TODO: Refactor this to prepareCanvasContext
-    var canvas = $('#motif-canvas')[0];
-    my.context = canvas.getContext('2d');
-    my.context.scale(my.defs.devicePixelRatio, my.defs.devicePixelRatio);
+    my.prepareCanvasContext();
+
     my.context.lineWidth = my.defs.mainMotifThickness;
     my.context.strokeStyle = 'black';
 
@@ -238,14 +236,13 @@ var MotifSpeedWriter = (function(my, $) {
       default:
         break;
     }
-    // Restore context scale factor
-    // TODO: Refactor this to finishCanvasContext
-    my.context.scale(1.0 / my.defs.devicePixelRatio, 1.0 / my.defs.devicePixelRatio);
+
+    my.finishCanvasContext();
   }; // drawTerm
 
   // Position helpers (origin at lower left)
 
-  // Position coordinates (short name cuz used everywhere!)
+  // Reference coordinates (short function name cuz used everywhere!)
   var p = function(positionCode) {
     switch (positionCode) {
       case 'pby':
@@ -275,12 +272,12 @@ var MotifSpeedWriter = (function(my, $) {
     }
   };
 
-  var gridX = function(x) {
+  var gridMappedX = function(x) {
     var gridUnit = (p('prx') - p('plx')) / 7;
     return p('plx') + x * gridUnit;
   };
 
-  var gridY = function(y) {
+  var gridMappedY = function(y) {
     var gridUnit = (p('pby') - p('puty')) / 7;
     return p('pby') - y * gridUnit;
   };
@@ -319,9 +316,9 @@ var MotifSpeedWriter = (function(my, $) {
           if (params.length > 1) {
             my.context.beginPath();
             startPoint = params.shift();
-            my.context.moveTo(gridX(startPoint[0]), gridY(startPoint[1]));
+            my.context.moveTo(gridMappedX(startPoint[0]), gridMappedY(startPoint[1]));
             $.each(params, function(i, point) {
-              my.context.lineTo(gridX(point[0]), gridY(point[1]));
+              my.context.lineTo(gridMappedX(point[0]), gridMappedY(point[1]));
             });
             my.context.stroke();
           }
@@ -383,6 +380,7 @@ var MotifSpeedWriter = (function(my, $) {
   }; // drawPath
 
   // Continuation symbol that can be attached to any non-stretchable term
+  // Normally only used if duration > 1, unless force is true
   var drawContinuation = function(continuationStartY, force) {
     if (continuationStartY === undefined) {
       continuationStartY = startY - my.defs.unitSize;
