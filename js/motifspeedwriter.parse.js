@@ -116,7 +116,11 @@ var MotifSpeedWriter = (function(my, $) {
     } else {
       termParts = [termCode];
     }
-    if ($.inArray(termCode, my.defs.efforts) > -1) {
+    var efforts = ['eff', 'flo', 'fre', 'bou',
+                   'wei', 'lig', 'str', 'lmp', 'hvy', 'wse', 'lws', 'sws',
+                   'tim', 'sus', 'qui',
+                   'spa', 'ind', 'dir'];
+    if ($.inArray(termCode, efforts) > -1) {
       termCode = 'effort';
     }
     return { code: termCode, parts: termParts };

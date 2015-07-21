@@ -9,8 +9,7 @@ var MotifSpeedWriter = (function(my, $) {
     unitSize: 28,
     termPadding: 3,
     symbolPartPadding: 4,
-    mainMotifThickness: 2,
-    efforts: ['eff', 'flo', 'fre', 'bou', 'wei', 'lig', 'str', 'lmp', 'hvy', 'wse', 'lws', 'sws', 'tim', 'sus', 'qui', 'spa', 'ind', 'dir']
+    mainMotifThickness: 2
   };
   my.defs.staffLineHeight = 3 * my.defs.termPadding;
   my.defs.weightCenterRadius = my.defs.unitSize / 7;
