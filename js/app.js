@@ -19,32 +19,9 @@ jQuery.noConflict();
       var $this = $(this);
       var val = $this.val();
 
-      // Handle Motif staff entry
-      var cursorPos = $this.caret();
-      var numDoubleBars = (val.match(/\|\|/g) || []).length;
-      var posDoubleBar = val.indexOf('||');
-      var verticalBarAscii = 220;
-      var leftParenAscii = 57;
-      // If entered the second bar of two-bar series and there are no other double bars in the text
-      if (event.which === verticalBarAscii && numDoubleBars === 1 && (cursorPos === posDoubleBar + 1 || cursorPos === posDoubleBar + 2)) {
-        // Only add one bar if for some reason there's a solo bar at the end
-        var stringToAdd = (posDoubleBar != val.length - 2 && val.charAt(val.length - 1) === '|') ? '|' : ' ||';
-        $this.val($this.val() + stringToAdd);
-        $this.caret(cursorPos);
-        if ($this.val().charAt(cursorPos) !== '|') {
-          $this.caret(' ');
-        }
-      // Else if entered left paren, then auto-add right paren
-      } else if (event.which === leftParenAscii) {
-        $this.caret(')');
-        $this.caret(cursorPos);
-      }
-
+      handleAutoTextEntry(event.which, $this);
       MotifSpeedWriter.generateMotif($this.val());
-
-      // Push new state to browser URL
-      var motifParam = $this.val() ? '?motif=' + encodeURIComponent($this.val()) : '';
-      window.history.pushState(null, 'Motif SpeedWriter | Laban Labs', location.pathname + motifParam);
+      pushHistory($this.val());
     });
 
     $(window).bind("popstate", function() {
@@ -55,5 +32,34 @@ jQuery.noConflict();
   });
 
   $(document).foundation();
+
+  var handleAutoTextEntry = function(key, textField) {
+    // Handle Motif staff entry
+    var val = textField.val();
+    var cursorPos = textField.caret();
+    var numDoubleBars = (val.match(/\|\|/g) || []).length;
+    var posDoubleBar = val.indexOf('||');
+    var verticalBarAscii = 220;
+    var leftParenAscii = 57;
+    // If entered the second bar of two-bar series and there are no other double bars in the text
+    if (key === verticalBarAscii && numDoubleBars === 1 && (cursorPos === posDoubleBar + 1 || cursorPos === posDoubleBar + 2)) {
+      // Only add one bar if for some reason there's a solo bar at the end
+      var stringToAdd = (posDoubleBar != val.length - 2 && val.charAt(val.length - 1) === '|') ? '|' : ' ||';
+      textField.val(textField.val() + stringToAdd);
+      textField.caret(cursorPos);
+      if (textField.val().charAt(cursorPos) !== '|') {
+        textField.caret(' ');
+      }
+    // Else if entered left paren, then auto-add right paren
+    } else if (key === leftParenAscii) {
+      textField.caret(')');
+      textField.caret(cursorPos);
+    }
+  };
+
+  var pushHistory = function(motifText) {
+    var motifParam = motifText ? '?motif=' + encodeURIComponent(motifText) : '';
+    window.history.pushState(null, 'Motif SpeedWriter | Laban Labs', location.pathname + motifParam);
+  };
 
 })(jQuery);
