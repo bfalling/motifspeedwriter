@@ -2,7 +2,8 @@ var jQuery = jQuery || {};
 
 // TODO:
 // Update Foundation
-// Clean up this file and main.js
+// Clean up this file
+// Add check for mouse-pasted text
 
 
 var MotifSpeedWriter = (function(my, $) {
