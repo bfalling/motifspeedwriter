@@ -17,75 +17,69 @@ var MotifSpeedWriter = (function(my, $) {
   }
 
   var layoutMotif = function(parsedMotif) {
-    numColumns = 0;
-    columnAvailableUnits = [];
-    layoutSequence(parsedMotif.preSequence, 0);
-    var preSequenceNumColumns = numColumns;
-    var maxPreSequenceDuration = 0;
-    $.each(columnAvailableUnits, function(i, unit) {
-      if (maxPreSequenceDuration < unit) {
-        maxPreSequenceDuration = unit;
-      }
-    });
-
-    numColumns = 0;
-    columnAvailableUnits = [];
-    layoutSequence(parsedMotif.mainSequence, 0);
-    var mainSequenceNumColumns = numColumns;
-    var maxMainSequenceDuration = 0;
-    $.each(columnAvailableUnits, function(i, unit) {
-      if (maxMainSequenceDuration < unit) {
-        maxMainSequenceDuration = unit;
-      }
-    });
-
-    var maxNumColumns = Math.max(preSequenceNumColumns, mainSequenceNumColumns);
+    var preSequenceLayout = layoutMotifPart(parsedMotif.preSequence);
+    var mainSequenceLayout = layoutMotifPart(parsedMotif.mainSequence);
+    var maxNumColumns = Math.max(preSequenceLayout.numColumns, mainSequenceLayout.numColumns);
     var totalCanvasWidth = maxNumColumns * my.defs.unitSize + 2 * my.defs.edgePadding;
-    var totalCanvasHeight = (maxPreSequenceDuration + maxMainSequenceDuration) * my.defs.unitSize +
+    var totalCanvasHeight = (preSequenceLayout.maxDuration + mainSequenceLayout.maxDuration) * my.defs.unitSize +
                             (parsedMotif.showMotifStaff ? 2 * my.defs.staffLineHeight : 0) + 2 * my.defs.edgePadding;
     return {
+      preSequenceNumColumns: preSequenceLayout.numColumns,
+      preSequenceMaxDuration: preSequenceLayout.maxDuration,
+      mainSequenceNumColumns: mainSequenceLayout.numColumns,
+      mainSequenceMaxDuration: mainSequenceLayout.maxDuration,
       maxNumColumns: maxNumColumns,
-      preSequenceNumColumns: preSequenceNumColumns,
-      maxPreSequenceDuration: maxPreSequenceDuration,
-      mainSequenceNumColumns: mainSequenceNumColumns,
-      maxMainSequenceDuration: maxMainSequenceDuration,
       width: totalCanvasWidth,
       height: totalCanvasHeight
     };
   };
 
-  var layoutSequence = function(sequence, startUnit) {
-    sequence.startUnit = startUnit;
+  var layoutMotifPart = function(partSequence) {
+    var numColumns = 0;
+    var columnAvailableUnits = [];
+    var layoutSequence = function(sequence, startUnit) {
+      sequence.startUnit = startUnit;
 
-    // Compute sequence duration
-    sequence.duration = 0;
-    $.each(sequence, function(i, term) {
-      sequence.duration += term.duration;
-    });
-
-    // Determine first available free column, or create new one
-    for (var i = 0; i < numColumns; i++) {
-      if (columnAvailableUnits[i] <= startUnit) {
-        sequence.column = i;
-        columnAvailableUnits[i] = startUnit + sequence.duration;
-        break;
-      }
-    }
-    if (sequence.column === undefined) {
-      sequence.column = numColumns;
-      columnAvailableUnits[numColumns] = startUnit + sequence.duration;
-      numColumns++;
-    }
-
-    // Recurse through each term's subsequences, if present
-    var currentUnit = 0;
-    $.each(sequence, function(i, term) {
-      $.each(term.subsequences, function(i, subsequence) {
-        layoutSequence(subsequence, startUnit + currentUnit);
+      // Compute sequence duration
+      sequence.duration = 0;
+      $.each(sequence, function(i, term) {
+        sequence.duration += term.duration;
       });
-      currentUnit += term.duration;
+
+      // Determine first available free column, or create new one
+      for (var i = 0; i < numColumns; i++) {
+        if (columnAvailableUnits[i] <= startUnit) {
+          sequence.column = i;
+          columnAvailableUnits[i] = startUnit + sequence.duration;
+          break;
+        }
+      }
+      if (sequence.column === undefined) {
+        sequence.column = numColumns;
+        columnAvailableUnits[numColumns] = startUnit + sequence.duration;
+        numColumns++;
+      }
+
+      // Recurse through each term's subsequences, if present
+      var currentUnit = 0;
+      $.each(sequence, function(i, term) {
+        $.each(term.subsequences, function(i, subsequence) {
+          layoutSequence(subsequence, startUnit + currentUnit);
+        });
+        currentUnit += term.duration;
+      });
+    };
+
+    layoutSequence(partSequence, 0);
+    var maxDuration = 0;
+    $.each(columnAvailableUnits, function(i, unit) {
+      maxDuration = Math.max(maxDuration, unit);
     });
-  };
+    return {
+      numColumns: numColumns,
+      maxDuration: maxDuration
+    };
+  }
 
   my.drawInitial = function() {
     var canvas = $('#motif-canvas');
@@ -182,13 +176,13 @@ var MotifSpeedWriter = (function(my, $) {
 
     if (showMotifStaff) {
       this.drawSequence(preSequence, midX - (layout.preSequenceNumColumns % 2 === 0 ? my.defs.unitSize / 2 : 0), currentY);
-      currentY += layout.maxPreSequenceDuration * my.defs.unitSize;
+      currentY += layout.preSequenceMaxDuration * my.defs.unitSize;
       this.drawStaff(layout.maxNumColumns, midX, layout.height - currentY);
       currentY += my.defs.staffLineHeight;
     }
 
     this.drawSequence(mainSequence, midX - (layout.mainSequenceNumColumns % 2 === 0 ? my.defs.unitSize / 2 : 0), currentY);
-    currentY += layout.maxMainSequenceDuration * my.defs.unitSize;
+    currentY += layout.mainSequenceMaxDuration * my.defs.unitSize;
 
     if (showMotifStaff) {
       this.drawStaff(layout.maxNumColumns, midX, layout.height - currentY);
