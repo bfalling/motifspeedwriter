@@ -1,11 +1,15 @@
 var jQuery = jQuery || {};
 
+// TODO:
+// Update Foundation
+// Clean up this file and main.js
+
+
 var MotifSpeedWriter = (function(my, $) {
   'use strict';
 
   my.prepareCanvasContext = function() {
-    my.canvas = $('#motif-canvas')[0];
-    my.context = my.canvas.getContext('2d');
+    my.context = my.motifCanvas[0].getContext('2d');
     my.context.scale(my.defs.devicePixelRatio, my.defs.devicePixelRatio);
   }
 
@@ -13,7 +17,7 @@ var MotifSpeedWriter = (function(my, $) {
     my.context.scale(1.0 / my.defs.devicePixelRatio, 1.0 / my.defs.devicePixelRatio);
   }
 
-  my.drawMotif = function(parsedMotif, selector) {
+  my.drawMotif = function(parsedMotif) {
     var showMotifStaff = parsedMotif.showMotifStaff;
     var preSequence = parsedMotif.preSequence;
     var mainSequence = parsedMotif.mainSequence;
@@ -21,8 +25,9 @@ var MotifSpeedWriter = (function(my, $) {
     var layout = layoutMotif(parsedMotif);
 
     // TODO: Why 2 widths/heights?
-    $(selector).attr('width', layout.width * my.defs.devicePixelRatio).attr('height', layout.height * my.defs.devicePixelRatio)
-                      .width(layout.width).height(layout.height);
+    my.motifCanvas.attr('width', layout.width * my.defs.devicePixelRatio)
+               .attr('height', layout.height * my.defs.devicePixelRatio)
+               .width(layout.width).height(layout.height);
 
     drawInitial();
 
@@ -113,20 +118,22 @@ var MotifSpeedWriter = (function(my, $) {
   var drawInitial = function() {
     my.prepareCanvasContext();
 
+    my.context.clearRect(0, 0, my.motifCanvas.width, my.motifCanvas.height);
+
     my.context.fillStyle = 'white';
-    my.context.fillRect(0, 0, my.canvas.width, my.canvas.height);
+    my.context.fillRect(0, 0, my.motifCanvas.width, my.motifCanvas.height);
 
     my.context.font = '0.1rem arial,sans-serif';
     my.context.textAlign = 'center';
     my.context.textBaseline = 'bottom';
     my.context.fillStyle = '#aaa';
-    my.context.fillText('Motif SpeedWriter', my.canvas.width / 2, my.canvas.height);
+    my.context.fillText('Motif SpeedWriter', my.motifCanvas.width / 2, my.motifCanvas.height);
 
     my.finishCanvasContext();
   };
 
   var drawSequence = function(sequence, midX, startY) {
-    var totalCanvasHeight = $('#motif-canvas').height();
+    var totalCanvasHeight = my.motifCanvas.height();
     var column = sequence.column;
     var columnUnitShift = column % 2 === 1 ? (column + 1) / 2 : -(column / 2);
     var columnX = midX + columnUnitShift * my.defs.unitSize;

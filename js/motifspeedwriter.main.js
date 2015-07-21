@@ -4,39 +4,51 @@ jQuery.noConflict();
 var MotifSpeedWriter = (function(my, $) {
   'use strict';
 
+  my.motifTextField = $('#motif-text');
+  my.motifImageContainer = $('#motif-image-container');
+  my.motifTextFieldClearButton = $('#motif-text-clear-button');
+  my.motifCanvas = $('#motif-canvas');
+
   $(document).ready(function() {
-    $('#motif-text-clear-button').click(function(event) {
-      my.resetForm('#motif-text');
-      $('#motif-text').focus();
+    my.motifTextFieldClearButton.click(function(event) {
+      my.resetForm();
+      my.motifTextField.focus();
       event.preventDefault();
     });
 
     // keyup fires multiple events, so just catch and process first one
-    $('#motif-text').keyup(function(event) {
-      var $this = $(this);
-      my.handleAutoTextEntry(event.which, $this);
-      my.generateMotif($this.val());
-      my.pushHistory($this.val());
+    var lastMotifText;
+    my.motifTextField.keyup(function(event) {
+      my.handleAutoTextEntry(event.which);
+      var motifText = my.motifTextField.val();
+      if (motifText === lastMotifText) {
+        return;
+      } else {
+        lastMotifText = motifText;
+      }
+
+      my.generateMotif();
+      my.pushHistory(motifText, location.pathname);
     });
 
     $(window).bind("popstate", function() {
-        my.loadExistingMotif('#motif-text');
+      my.loadExistingMotif(location.search);
     });
 
-    my.loadExistingMotif('#motif-text');
+    my.loadExistingMotif(location.search);
   });
 
   $(document).foundation();
 
-  my.resetForm = function(selector) {
-    $(selector).val('');
-    my.generateMotif('');
+  my.resetForm = function() {
+    my.motifTextField.val('');
+    my.generateMotif();
   };
 
-  my.handleAutoTextEntry = function(key, textField) {
+  my.handleAutoTextEntry = function(key) {
     // Handle Motif staff entry
-    var val = textField.val();
-    var cursorPos = textField.caret();
+    var val = my.motifTextField.val();
+    var cursorPos = my.motifTextField.caret();
     var numDoubleBars = (val.match(/\|\|/g) || []).length;
     var posDoubleBar = val.indexOf('||');
     var verticalBarAscii = 220;
@@ -45,54 +57,44 @@ var MotifSpeedWriter = (function(my, $) {
     if (key === verticalBarAscii && numDoubleBars === 1 && (cursorPos === posDoubleBar + 1 || cursorPos === posDoubleBar + 2)) {
       // Only add one bar if for some reason there's a solo bar at the end
       var stringToAdd = (posDoubleBar != val.length - 2 && val.charAt(val.length - 1) === '|') ? '|' : ' ||';
-      textField.val(val + stringToAdd);
-      textField.caret(cursorPos);
-      if (textField.val().charAt(cursorPos) !== '|') {
-        textField.caret(' ');
+      my.motifTextField.val(val + stringToAdd);
+      my.motifTextField.caret(cursorPos);
+      if (my.motifTextField.val().charAt(cursorPos) !== '|') {
+        my.motifTextField.caret(' ');
       }
     // Else if entered left paren, then auto-add right paren
     } else if (key === leftParenAscii) {
-      textField.caret(')');
-      textField.caret(cursorPos);
+      my.motifTextField.caret(')');
+      my.motifTextField.caret(cursorPos);
     }
   };
 
-  var lastMotifText;
-  my.generateMotif = function(motifText) {
-    if (motifText === lastMotifText) {
-      return;
-    } else {
-      lastMotifText = motifText;
-    }
+  my.generateMotif = function() {
+    var parsedMotif = my.parseMotif(my.motifTextField.val());
+    my.drawMotif(parsedMotif);
+    my.generateMotifImage();
+  };
 
-    // NOTE: Removing old canvas and creating a new one elminates border artifacts left when resizing on Safari
-    $('#motif-canvas').remove();
-    $('#motif-canvas-container').append('<canvas id="motif-canvas"></canvas>');
-
-    var parsedMotif = my.parseMotif(motifText);
-    my.drawMotif(parsedMotif, '#motif-canvas');
-
-    // Generate image
-    var canvasDataURL = $('#motif-canvas')[0].toDataURL('image/png');
-    $('#motif-image-container').html('<img id="motif-image" src="' + canvasDataURL + '">');
-
-  }; // generateMotif
-
-  my.pushHistory = function(motifText) {
+  my.pushHistory = function(motifText, locationPathname) {
     var motifParam = motifText ? '?motif=' + encodeURIComponent(motifText) : '';
-    window.history.pushState(null, 'Motif SpeedWriter | Laban Labs', location.pathname + motifParam);
+    window.history.pushState(null, 'Motif SpeedWriter | Laban Labs', locationPathname + motifParam);
   };
 
-  my.loadExistingMotif = function(selector) {
-    var match = location.search.match(/motif=([^&]*)/);
+  my.loadExistingMotif = function(locationSearch) {
+    var match = locationSearch.match(/motif=([^&]*)/);
     if (match) {
-      var motifText = decodeURIComponent(match[1] + '');
-      $(selector).val(motifText);
-      my.generateMotif(motifText);
-      $(selector).focus();
+      var motifText = decodeURIComponent(match[1] + ''); // Converts to string if empty
+      my.motifTextField.val(motifText);
+      my.motifTextField.focus();
+      my.generateMotif();
     } else {
-      my.resetForm('#motif-text');
+      my.resetForm();
     }
+  };
+
+  my.generateMotifImage = function() {
+    var canvasDataURL = my.motifCanvas[0].toDataURL('image/png');
+    my.motifImageContainer.html('<img src="' + canvasDataURL + '">');
   };
 
   return my;

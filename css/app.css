@@ -13,7 +13,7 @@
 #motif-text-clear-button {
   font-size: 1.5rem;
 }
-#motif-image {
+#motif-image-container img {
   display: block;
   margin: 20px auto;
   border: 1px solid #ccc;
