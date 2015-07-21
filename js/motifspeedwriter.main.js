@@ -6,8 +6,7 @@ var MotifSpeedWriter = (function(my, $) {
 
   $(document).ready(function() {
     $('#motif-text-clear-button').click(function(event) {
-      $('#motif-text').val('');
-      my.generateMotif('');
+      my.resetForm('#motif-text');
       $('#motif-text').focus();
       event.preventDefault();
     });
@@ -15,31 +14,48 @@ var MotifSpeedWriter = (function(my, $) {
     // keyup fires multiple events, so just catch and process first one
     $('#motif-text').keyup(function(event) {
       var $this = $(this);
-      handleAutoTextEntry(event.which, $this);
+      my.handleAutoTextEntry(event.which, $this);
       my.generateMotif($this.val());
-      pushHistory($this.val());
+      my.pushHistory($this.val());
     });
 
     $(window).bind("popstate", function() {
-        my.loadPage();
+        my.loadExistingMotif('#motif-text');
     });
 
-    my.loadPage();
+    my.loadExistingMotif('#motif-text');
   });
 
   $(document).foundation();
 
-  my.loadPage = function() {
-    var match = location.search.match(/motif=([^&]*)/);
-    if (match) {
-      var motifText = decodeURIComponent(match[1] + '');
-      $('#motif-text').val(motifText);
-      this.generateMotif(motifText);
-      $('#motif-text').focus();
-    } else {
-      $('#motif-text-clear-button').click();
+  my.resetForm = function(selector) {
+    $(selector).val('');
+    my.generateMotif('');
+  };
+
+  my.handleAutoTextEntry = function(key, textField) {
+    // Handle Motif staff entry
+    var val = textField.val();
+    var cursorPos = textField.caret();
+    var numDoubleBars = (val.match(/\|\|/g) || []).length;
+    var posDoubleBar = val.indexOf('||');
+    var verticalBarAscii = 220;
+    var leftParenAscii = 57;
+    // If entered the second bar of two-bar series and there are no other double bars in the text
+    if (key === verticalBarAscii && numDoubleBars === 1 && (cursorPos === posDoubleBar + 1 || cursorPos === posDoubleBar + 2)) {
+      // Only add one bar if for some reason there's a solo bar at the end
+      var stringToAdd = (posDoubleBar != val.length - 2 && val.charAt(val.length - 1) === '|') ? '|' : ' ||';
+      textField.val(val + stringToAdd);
+      textField.caret(cursorPos);
+      if (textField.val().charAt(cursorPos) !== '|') {
+        textField.caret(' ');
+      }
+    // Else if entered left paren, then auto-add right paren
+    } else if (key === leftParenAscii) {
+      textField.caret(')');
+      textField.caret(cursorPos);
     }
-  }; // loadPage
+  };
 
   var lastMotifText;
   my.generateMotif = function(motifText) {
@@ -62,33 +78,21 @@ var MotifSpeedWriter = (function(my, $) {
 
   }; // generateMotif
 
-  var handleAutoTextEntry = function(key, textField) {
-    // Handle Motif staff entry
-    var val = textField.val();
-    var cursorPos = textField.caret();
-    var numDoubleBars = (val.match(/\|\|/g) || []).length;
-    var posDoubleBar = val.indexOf('||');
-    var verticalBarAscii = 220;
-    var leftParenAscii = 57;
-    // If entered the second bar of two-bar series and there are no other double bars in the text
-    if (key === verticalBarAscii && numDoubleBars === 1 && (cursorPos === posDoubleBar + 1 || cursorPos === posDoubleBar + 2)) {
-      // Only add one bar if for some reason there's a solo bar at the end
-      var stringToAdd = (posDoubleBar != val.length - 2 && val.charAt(val.length - 1) === '|') ? '|' : ' ||';
-      textField.val(textField.val() + stringToAdd);
-      textField.caret(cursorPos);
-      if (textField.val().charAt(cursorPos) !== '|') {
-        textField.caret(' ');
-      }
-    // Else if entered left paren, then auto-add right paren
-    } else if (key === leftParenAscii) {
-      textField.caret(')');
-      textField.caret(cursorPos);
-    }
-  };
-
-  var pushHistory = function(motifText) {
+  my.pushHistory = function(motifText) {
     var motifParam = motifText ? '?motif=' + encodeURIComponent(motifText) : '';
     window.history.pushState(null, 'Motif SpeedWriter | Laban Labs', location.pathname + motifParam);
+  };
+
+  my.loadExistingMotif = function(selector) {
+    var match = location.search.match(/motif=([^&]*)/);
+    if (match) {
+      var motifText = decodeURIComponent(match[1] + '');
+      $(selector).val(motifText);
+      my.generateMotif(motifText);
+      $(selector).focus();
+    } else {
+      my.resetForm('#motif-text');
+    }
   };
 
   return my;
