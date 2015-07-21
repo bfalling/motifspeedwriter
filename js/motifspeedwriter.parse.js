@@ -127,12 +127,12 @@ var MotifSpeedWriter = (function(my, $) {
   };
 
   // Useful for debugging
-  my.describeSequence = function(sequence) {
+  my.describeTermsSequence = function(terms) {
     var description = '';
-    $.each(sequence, function(i, term) {
+    $.each(terms, function(i, term) {
       description += term.code + '-' + term.duration + ' ';
       $.each(term.subsequences, function(i, subsequence) {
-        description += '[' + my.describeSequence(subsequence) + '] ';
+        description += '[' + my.describeTermsSequence(subsequence) + '] ';
       });
     });
     return description;
