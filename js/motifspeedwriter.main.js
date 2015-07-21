@@ -4,8 +4,8 @@ var MotifSpeedWriter = (function(my, $) {
   'use strict';
 
   my.prepareCanvasContext = function() {
-    var canvas = $('#motif-canvas')[0];
-    my.context = canvas.getContext('2d');
+    my.canvas = $('#motif-canvas')[0];
+    my.context = my.canvas.getContext('2d');
     my.context.scale(my.defs.devicePixelRatio, my.defs.devicePixelRatio);
   }
 
@@ -78,40 +78,69 @@ var MotifSpeedWriter = (function(my, $) {
     };
   }
 
-  my.drawInitial = function() {
-    var canvas = $('#motif-canvas');
-    var context = canvas[0].getContext('2d');
-    context.scale(my.defs.devicePixelRatio, my.defs.devicePixelRatio);
+  var drawInitial = function() {
+    my.prepareCanvasContext();
 
-    context.fillStyle = 'white';
-    context.fillRect(0, 0, canvas.width(), canvas.height());
+    my.context.fillStyle = 'white';
+    my.context.fillRect(0, 0, my.canvas.width, my.canvas.height);
 
-    context.font = '0.1rem arial,sans-serif';
-    context.textAlign = 'center';
-    context.textBaseline = 'bottom';
-    context.fillStyle = '#aaa';
-    context.fillText('Motif SpeedWriter', canvas.width() / 2, canvas.height());
+    my.context.font = '0.1rem arial,sans-serif';
+    my.context.textAlign = 'center';
+    my.context.textBaseline = 'bottom';
+    my.context.fillStyle = '#aaa';
+    my.context.fillText('Motif SpeedWriter', my.canvas.width / 2, my.canvas.height);
 
-    // Restore context scale factor
-    context.scale(1.0 / my.defs.devicePixelRatio, 1.0 / my.defs.devicePixelRatio);
+    my.finishCanvasContext();
   };
 
-  my.drawSequence = function(sequence, midX, startY) {
+  my.drawMotif = function(parsedMotif, selector) {
+    var showMotifStaff = parsedMotif.showMotifStaff;
+    var preSequence = parsedMotif.preSequence;
+    var mainSequence = parsedMotif.mainSequence;
+
+    var layout = layoutMotif(parsedMotif);
+
+    // TODO: Why 2 widths/heights?
+    $(selector).attr('width', layout.width * my.defs.devicePixelRatio).attr('height', layout.height * my.defs.devicePixelRatio)
+                      .width(layout.width).height(layout.height);
+
+    drawInitial();
+
+    var midX = layout.width / 2;
+    var currentY = my.defs.edgePadding;
+
+    if (showMotifStaff) {
+      drawSequence(preSequence, midX - (layout.preSequenceNumColumns % 2 === 0 ? my.defs.unitSize / 2 : 0), currentY);
+      currentY += layout.preSequenceMaxDuration * my.defs.unitSize;
+      drawStaff(layout.maxNumColumns, midX, layout.height - currentY);
+      currentY += my.defs.staffLineHeight;
+    }
+
+    drawSequence(mainSequence, midX - (layout.mainSequenceNumColumns % 2 === 0 ? my.defs.unitSize / 2 : 0), currentY);
+    currentY += layout.mainSequenceMaxDuration * my.defs.unitSize;
+
+    if (showMotifStaff) {
+      drawStaff(layout.maxNumColumns, midX, layout.height - currentY);
+      currentY += my.defs.staffLineHeight;
+    }
+  };
+
+  var drawSequence = function(sequence, midX, startY) {
     var totalCanvasHeight = $('#motif-canvas').height();
     var column = sequence.column;
     var columnUnitShift = column % 2 === 1 ? (column + 1) / 2 : -(column / 2);
     var columnX = midX + columnUnitShift * my.defs.unitSize;
     var currentY = startY + sequence.startUnit * my.defs.unitSize;
     $.each(sequence, function(i, term) {
-      this.drawTerm(term, columnX, totalCanvasHeight - currentY);
+      my.drawTerm(term, columnX, totalCanvasHeight - currentY);
       currentY += term.duration * my.defs.unitSize;
       $.each(term.subsequences, function(i, subsequence) {
-        this.drawSequence(subsequence, midX, startY);
-      }.bind(this));
-    }.bind(this));
+        drawSequence(subsequence, midX, startY);
+      });
+    });
   };
 
-  my.drawStaff = function(columnWidth, midX, startY) {
+  var drawStaff = function(columnWidth, midX, startY) {
     var canvas = $('#motif-canvas')[0];
     var context = canvas.getContext('2d');
     context.scale(my.defs.devicePixelRatio, my.defs.devicePixelRatio);
@@ -147,44 +176,12 @@ var MotifSpeedWriter = (function(my, $) {
       lastMotifText = motifText;
     }
 
-    var parsedMotif = my.parseMotif(motifText);
-
-    // TODO: Remove: For compatibility
-    var showMotifStaff = parsedMotif.showMotifStaff;
-    var preSequence = parsedMotif.preSequence;
-    var mainSequence = parsedMotif.mainSequence;
-
     // NOTE: Removing old canvas and creating a new one elminates border artifacts left when resizing on Safari
     $('#motif-canvas').remove();
     $('#motif-canvas-container').append('<canvas id="motif-canvas"></canvas>');
 
-    // Determine canvas dimensions
-    var layout = layoutMotif(parsedMotif);
-
-    $('#motif-canvas').attr('width', layout.width * my.defs.devicePixelRatio).attr('height', layout.height * my.defs.devicePixelRatio)
-                      .width(layout.width).height(layout.height);
-
-    // Draw the motif
-
-    this.drawInitial();
-
-    var midX = layout.width / 2;
-    var currentY = my.defs.edgePadding;
-
-    if (showMotifStaff) {
-      this.drawSequence(preSequence, midX - (layout.preSequenceNumColumns % 2 === 0 ? my.defs.unitSize / 2 : 0), currentY);
-      currentY += layout.preSequenceMaxDuration * my.defs.unitSize;
-      this.drawStaff(layout.maxNumColumns, midX, layout.height - currentY);
-      currentY += my.defs.staffLineHeight;
-    }
-
-    this.drawSequence(mainSequence, midX - (layout.mainSequenceNumColumns % 2 === 0 ? my.defs.unitSize / 2 : 0), currentY);
-    currentY += layout.mainSequenceMaxDuration * my.defs.unitSize;
-
-    if (showMotifStaff) {
-      this.drawStaff(layout.maxNumColumns, midX, layout.height - currentY);
-      currentY += my.defs.staffLineHeight;
-    }
+    var parsedMotif = my.parseMotif(motifText);
+    my.drawMotif(parsedMotif, '#motif-canvas');
 
     // Generate image
     var canvasDataURL = $('#motif-canvas')[0].toDataURL('image/png');
