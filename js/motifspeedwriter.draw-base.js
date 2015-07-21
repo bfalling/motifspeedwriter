@@ -25,10 +25,8 @@ var MotifSpeedWriter = (function(my, $) {
 
     var layout = layoutMotif(parsedMotif);
 
-    // TODO: Why 2 widths/heights?
     my.motifCanvas.attr('width', layout.width * my.defs.devicePixelRatio)
-               .attr('height', layout.height * my.defs.devicePixelRatio)
-               .width(layout.width).height(layout.height);
+                  .attr('height', layout.height * my.defs.devicePixelRatio);
 
     drawInitial();
 
@@ -119,6 +117,7 @@ var MotifSpeedWriter = (function(my, $) {
   var drawInitial = function() {
     my.prepareCanvasContext();
 
+    // Sometimes helps with clearing artifacts
     my.context.clearRect(0, 0, my.motifCanvas.width, my.motifCanvas.height);
 
     my.context.fillStyle = 'white';
