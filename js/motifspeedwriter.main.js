@@ -16,12 +16,13 @@ var MotifSpeedWriter = (function(my, $) {
       event.preventDefault();
     });
 
-    // keyup fires multiple events (only first one will be used)
+    // keyup can fire multiple events, e.g. typing vertical bar (with shift)
     my.motifTextField.keyup(function(event) {
       my.handleAutoTextEntry(event.which);
       my.updateForMotifTextChange();
     });
 
+    // Also catch mouse pasting (but doesn't identify keypresses)
     my.motifTextField.on('input', function() {
       my.updateForMotifTextChange();
     });

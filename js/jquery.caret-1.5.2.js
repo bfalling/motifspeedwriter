@@ -1,6 +1,6 @@
-/*! jQuery Caret Plugin - v1.5.1 - 2013-12-06
+/*! jQuery Caret Plugin - v1.5.2 - 2014-03-25
  * https://github.com/acdvorak/jquery.caret
- * Copyright (c) 2012-2013 Andrew C. Dvorak; Licensed MIT */
+ * Copyright (c) 2012-2014 Andrew C. Dvorak; Licensed MIT */
 (function($, undefined) {
 
     var _input = document.createElement('input');
@@ -109,7 +109,8 @@
             return caret;
         }
 
-        // TODO: This can occur when you highlight part of a textarea and then click in the middle of the highlighted portion in IE 6-10
+        // NOTE: This occurs when you highlight part of a textarea and then click in the middle of the highlighted portion in IE 6-10.
+        //       There doesn't appear to be anything we can do about it.
 //        alert("Your browser is incredibly stupid.  I don't know what else to say.");
 //        alert(range + '\n\n' + range.parentElement().tagName + '#' + range.parentElement().id);
 
@@ -291,29 +292,7 @@
     };
 
     var _setInputRangeIE = function(input, startPos, endPos) {
-        var i;
         var tr = input.createTextRange();
-        var rawValue = _getValue(input);
-
-        // Fix IE from counting the newline characters as two separate characters
-        var stop_it = startPos;
-
-        // TODO: Optimize this awful code
-        for (i = 0; i < stop_it; i++) {
-            if (rawValue.substr(i, 1).search(_rNewlineIE) !== -1) {
-                startPos = startPos - 1;
-            }
-        }
-
-        stop_it = endPos;
-
-        // TODO: Optimize this awful code
-        for (i = 0; i < stop_it; i++) {
-            if (rawValue.substr(i, 1).search(_rNewlineIE) !== -1) {
-                endPos = endPos - 1;
-            }
-        }
-
         tr.moveEnd('textedit', -1);
         tr.moveStart('character', startPos);
         tr.moveEnd('character', endPos - startPos);
