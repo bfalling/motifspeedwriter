@@ -16,19 +16,14 @@ var MotifSpeedWriter = (function(my, $) {
       event.preventDefault();
     });
 
-    // keyup fires multiple events, so just catch and process first one
-    var lastMotifText;
+    // keyup fires multiple events (only first one will be used)
     my.motifTextField.keyup(function(event) {
       my.handleAutoTextEntry(event.which);
-      var motifText = my.motifTextField.val();
-      if (motifText === lastMotifText) {
-        return;
-      } else {
-        lastMotifText = motifText;
-      }
+      my.updateForMotifTextChange();
+    });
 
-      my.generateMotif();
-      my.pushHistory(motifText, location.pathname);
+    my.motifTextField.on('input', function() {
+      my.updateForMotifTextChange();
     });
 
     $(window).bind("popstate", function() {

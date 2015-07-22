@@ -3,9 +3,22 @@ var jQuery = jQuery || {};
 var MotifSpeedWriter = (function(my, $) {
   'use strict';
 
+  var lastMotifText;
+  my.updateForMotifTextChange = function() {
+    var motifText = my.motifTextField.val();
+    if (motifText === lastMotifText) {
+      return;
+    } else {
+      lastMotifText = motifText;
+    }
+
+    generateMotif();
+    pushHistory(motifText, location.pathname);
+  };
+
   my.resetForm = function() {
     my.motifTextField.val('');
-    my.generateMotif();
+    generateMotif();
   };
 
   my.handleAutoTextEntry = function(key) {
@@ -32,30 +45,30 @@ var MotifSpeedWriter = (function(my, $) {
     }
   };
 
-  my.generateMotif = function() {
-    var parsedMotif = my.parseMotif(my.motifTextField.val());
-    my.drawMotif(parsedMotif);
-    my.generateMotifImage();
-  };
-
-  my.pushHistory = function(motifText, locationPathname) {
-    var motifParam = motifText ? '?motif=' + encodeURIComponent(motifText) : '';
-    window.history.pushState(null, 'Motif SpeedWriter | Laban Labs', locationPathname + motifParam);
-  };
-
   my.loadExistingMotif = function(locationSearch) {
     var match = locationSearch.match(/motif=([^&]*)/);
     if (match) {
       var motifText = decodeURIComponent(match[1] + ''); // Converts to string if empty
       my.motifTextField.val(motifText);
       my.motifTextField.focus();
-      my.generateMotif();
+      generateMotif();
     } else {
       my.resetForm();
     }
   };
 
-  my.generateMotifImage = function() {
+  var generateMotif = function() {
+    var parsedMotif = my.parseMotif(my.motifTextField.val());
+    my.drawMotif(parsedMotif);
+    generateMotifImage();
+  };
+
+  var pushHistory = function(motifText, locationPathname) {
+    var motifParam = motifText ? '?motif=' + encodeURIComponent(motifText) : '';
+    window.history.pushState(null, 'Motif SpeedWriter | Laban Labs', locationPathname + motifParam);
+  };
+
+  var generateMotifImage = function() {
     var canvasDataURL = my.motifCanvas[0].toDataURL('image/png');
     my.motifImageContainer.html('<img src="' + canvasDataURL + '">');
   };
