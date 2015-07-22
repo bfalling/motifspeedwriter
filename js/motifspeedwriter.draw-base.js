@@ -22,14 +22,14 @@ var MotifSpeedWriter = (function(my, $) {
     var currentY = my.defs.edgePadding;
 
     if (shouldShowMotifStaff) {
-      drawSequence(parsedMotif.preSequence, midX - (layout.preSequenceNumColumns % 2 === 0 ? my.defs.unitSize / 2 : 0), currentY);
-      currentY += layout.preSequenceMaxDuration * my.defs.unitSize;
+      drawSequence(parsedMotif.preSequence, midX - (layout.preSequence.numColumns % 2 === 0 ? my.defs.unitSize / 2 : 0), currentY);
+      currentY += layout.preSequence.maxDuration * my.defs.unitSize;
       drawStaff(layout.maxNumColumns, midX, layout.height - currentY);
       currentY += my.defs.staffLineHeight;
     }
 
-    drawSequence(parsedMotif.mainSequence, midX - (layout.mainSequenceNumColumns % 2 === 0 ? my.defs.unitSize / 2 : 0), currentY);
-    currentY += layout.mainSequenceMaxDuration * my.defs.unitSize;
+    drawSequence(parsedMotif.mainSequence, midX - (layout.mainSequence.numColumns % 2 === 0 ? my.defs.unitSize / 2 : 0), currentY);
+    currentY += layout.mainSequence.maxDuration * my.defs.unitSize;
 
     if (shouldShowMotifStaff) {
       drawStaff(layout.maxNumColumns, midX, layout.height - currentY);
@@ -45,10 +45,8 @@ var MotifSpeedWriter = (function(my, $) {
     var totalCanvasHeight = (preSequenceLayout.maxDuration + mainSequenceLayout.maxDuration) * my.defs.unitSize +
                             (parsedMotif.showMotifStaff ? 2 * my.defs.staffLineHeight : 0) + 2 * my.defs.edgePadding;
     return {
-      preSequenceNumColumns: preSequenceLayout.numColumns,
-      preSequenceMaxDuration: preSequenceLayout.maxDuration,
-      mainSequenceNumColumns: mainSequenceLayout.numColumns,
-      mainSequenceMaxDuration: mainSequenceLayout.maxDuration,
+      preSequence: preSequenceLayout,
+      mainSequence: mainSequenceLayout,
       maxNumColumns: maxNumColumns,
       width: totalCanvasWidth,
       height: totalCanvasHeight
