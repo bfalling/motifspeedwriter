@@ -103,8 +103,13 @@ var MotifSpeedWriter = (function(my, $) {
   }
 
   var prepareCanvas = function(width, height) {
+    // I can't explain this, but without the seeming redundant setting of
+    // width and height below, the Motif will either fail to render or else
+    // be completely distorted.
     my.motifCanvas.attr('width', width * my.defs.devicePixelRatio)
-                  .attr('height', height * my.defs.devicePixelRatio);
+                  .attr('height', height * my.defs.devicePixelRatio)
+                  .width(width)
+                  .height(height);
 
     my.prepareCanvasContext();
 
