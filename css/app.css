@@ -12,6 +12,7 @@
 }
 #motif-text-clear-button {
   font-size: 1.5rem;
+  padding-left: 0.2rem;
 }
 #motif-image-container img {
   display: block;
