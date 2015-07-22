@@ -101,6 +101,11 @@ var MotifSpeedWriter = (function(my, $) {
   }
 
   var prepareCanvas = function(width, height) {
+
+    // Browser hack: turning off the border during resizing avoids
+    //               occasional artifacts on Mac Safari
+    my.motifCanvas.css('border', 'none');
+
     // I can't explain this, but without the seeming redundant setting of
     // width and height below, the Motif will either fail to render or else
     // be completely distorted.
@@ -108,6 +113,9 @@ var MotifSpeedWriter = (function(my, $) {
                   .attr('height', height * my.defs.devicePixelRatio)
                   .width(width)
                   .height(height);
+
+    // Other side of the browser hack (see above)
+    my.motifCanvas.css('border', '1px solid #ccc');
 
     my.prepareCanvasContext();
 

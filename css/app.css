@@ -22,7 +22,6 @@
 #motif-canvas {
   display: block;
   margin: 20px auto;
-  border: 1px solid #ccc;
 }
 #left-info h3, #left-info li, #right-info h3, #right-info li {
   color: #666;
