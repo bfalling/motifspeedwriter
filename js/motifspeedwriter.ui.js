@@ -3,6 +3,7 @@ var jQuery = jQuery || {};
 var MotifSpeedWriter = (function(my, $) {
   'use strict';
 
+  // Can safely call this repeatedly due to check at beginning
   var lastMotifText;
   my.updateForMotifTextChange = function() {
     var motifText = my.motifTextField.val();
@@ -18,7 +19,7 @@ var MotifSpeedWriter = (function(my, $) {
 
   my.resetForm = function() {
     my.motifTextField.val('');
-    generateMotif();
+    my.updateForMotifTextChange();
   };
 
   my.handleAutoTextEntry = function(key) {
