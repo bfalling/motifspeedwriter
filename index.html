@@ -35,7 +35,7 @@
     </div>
     <div class="row">
       <div class="small-12 columns">
-        <form>
+        <form method="get">
           <div class="row collapse">
             <div class="small-2 columns">
               <label for="motif-text" class="right"><span class="motif-text-prompt"><span class="hide-for-small-only">Try it! </span>&#8680;</span></label>
@@ -43,7 +43,7 @@
             <div class="small-10 columns">
               <div class="row collapse">
                 <div class="small-11 columns">
-                  <input type="text" id="motif-text" placeholder="Type Your Motif Text Here" spellcheck="false">
+                  <input name="motif" type="text" id="motif-text" placeholder="Type Your Motif Text Here" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                 </div>
                 <div class="small-1 columns">
                   <a href="#" id="motif-text-clear-button">&#215;</a>
