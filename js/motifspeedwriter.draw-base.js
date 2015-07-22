@@ -6,11 +6,11 @@ var MotifSpeedWriter = (function(my, $) {
   my.prepareCanvasContext = function() {
     my.context = my.motifCanvas[0].getContext('2d');
     my.context.scale(my.defs.devicePixelRatio, my.defs.devicePixelRatio);
-  }
+  };
 
   my.finishCanvasContext = function() {
     my.context.scale(1.0 / my.defs.devicePixelRatio, 1.0 / my.defs.devicePixelRatio);
-  }
+  };
 
   my.drawMotif = function(parsedMotif) {
     var shouldShowMotifStaff = parsedMotif.showMotifStaff;
@@ -98,7 +98,7 @@ var MotifSpeedWriter = (function(my, $) {
       numColumns: numColumns,
       maxDuration: maxDuration
     };
-  }
+  };
 
   var prepareCanvas = function(width, height) {
 
